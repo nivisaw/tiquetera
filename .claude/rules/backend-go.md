@@ -1,6 +1,6 @@
 # Reglas Backend Go
 
-- Go 1.23+, módulos. `gofmt`, `goimports`, `golangci-lint` (errcheck, govet, staticcheck, gosec, revive, bodyclose, sqlclosecheck, contextcheck).
+- Go 1.27, módulos. `gofmt`, `goimports`, `golangci-lint` (errcheck, govet, staticcheck, gosec, revive, bodyclose, sqlclosecheck, contextcheck).
 - Respeta capas de docs/ARCHITECTURE.md. Handlers delgados: parsear → validar → servicio → DTO.
 - `context.Context` primer parámetro en toda función con I/O. Nunca `context.Background()` dentro de request.
 - Errores: envolver con `fmt.Errorf("...: %w", err)`; errores de dominio tipados (`domain.ErrSinSaldo`) mapeados a HTTP en un solo lugar (`http/errors.go`).

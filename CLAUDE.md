@@ -3,9 +3,9 @@
 App móvil (Android/iOS) para gestionar tiqueteras prepagadas de almuerzos con QR. Roles: **admin** (registra clientes, asigna paquetes, genera/comparte QR) y **cajero** (escanea QR, debita 1 almuerzo).
 
 ## Stack (decidido — no re-litigar, ver docs/ADR.md)
-- **Backend:** Go 1.23+ · chi (router) · pgx/v5 · sqlc · golang-migrate · slog
-- **BD:** PostgreSQL 16
-- **Móvil:** Flutter 3.x (Dart 3) · Riverpod · go_router · dio · mobile_scanner · qr_flutter · share_plus · flutter_secure_storage
+- **Backend:** Go 1.27 · chi v5 · pgx/v5 · sqlc · golang-migrate · slog
+- **BD:** PostgreSQL 18
+- **Móvil:** Flutter 3.47 (Dart 3) · Riverpod · go_router · dio · mobile_scanner · qr_flutter · share_plus · flutter_secure_storage
 - **Infra:** Docker + Docker Compose (api, db, caddy) en VPS · GitHub Actions CI
 
 ## Estructura
@@ -38,6 +38,10 @@ docs/      ARCHITECTURE, DATA_MODEL, API, ADR, PLAN, PROGRESS
 - `make up` / `make down` — levanta stack local con Docker Compose
 - `make test` · `make lint` · `make migrate` · `make sqlc`
 - `cd mobile && flutter test && flutter analyze`
+
+## Versiones
+- Siempre la última versión estable, fijada exacta (nunca `latest`). Antes de introducir una dependencia/imagen nueva, consulta la fuente oficial (go.dev/dl, proxy.golang.org, Docker Hub, GitHub releases, pub.dev); no uses versiones de memoria.
+- Actualizaciones: Dependabot cada 2 meses (`.github/dependabot.yml`); parches de seguridad de inmediato.
 
 ## Reglas detalladas
 `.claude/rules/`: security · backend-go · mobile-flutter · database · testing · docker · ux-ui · git

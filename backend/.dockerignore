@@ -1,0 +1,10 @@
+# Solo se envía al build lo necesario para compilar
+*
+!go.mod
+!go.sum
+!cmd/
+!internal/
+!db/
+!api/
+**/*_test.go
+**/testdata/

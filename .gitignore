@@ -1,33 +1,105 @@
-# Secretos
+# ===== Secretos y credenciales (NUNCA subir) =====
 .env
+.env.*
 *.env
 !*.env.example
+!.env.example
 infra/secrets/
+secrets/
 *.pem
 *.key
+*.crt
+*.p12
+*.pfx
 *.jks
 *.keystore
 key.properties
+*.mobileprovision
+*.p8
+google-services.json
+GoogleService-Info.plist
+service-account*.json
+id_rsa*
+id_ed25519*
 
-# Go
+# ===== Datos, backups y logs =====
+*.sql.gz
+*.dump
+*.backup
+backups/
+*.log
+logs/
+tmp/
+*.tmp
+
+# ===== Go =====
 backend/bin/
-backend/coverage.*
+backend/dist/
+backend/coverage*
 *.test
+*.out
+*.prof
+go.work
+go.work.sum
 
-# Flutter / Dart
+# ===== Flutter / Dart =====
 mobile/.dart_tool/
+mobile/.packages
 mobile/build/
-mobile/.flutter-plugins*
-mobile/ios/Pods/
-mobile/android/.gradle/
-mobile/android/local.properties
+mobile/coverage/
+mobile/.flutter-plugins
+mobile/.flutter-plugins-dependencies
+mobile/**/generated_plugin_registrant.*
+mobile/**/failures/
+mobile/debug-info/
+mobile/symbols/
+*.apk
+*.aab
+*.ipa
+*.dSYM.zip
+*.dSYM/
 
-# IDE / SO
+# Android
+mobile/android/.gradle/
+mobile/android/captures/
+mobile/android/local.properties
+mobile/android/app/debug/
+mobile/android/app/profile/
+mobile/android/app/release/
+mobile/android/**/gradle-wrapper.jar
+.cxx/
+
+# iOS / macOS
+mobile/ios/Pods/
+mobile/ios/.symlinks/
+mobile/ios/Flutter/Flutter.framework
+mobile/ios/Flutter/Flutter.podspec
+mobile/ios/Flutter/Generated.xcconfig
+mobile/ios/Flutter/ephemeral/
+mobile/ios/Flutter/flutter_export_environment.sh
+mobile/ios/Runner/GeneratedPluginRegistrant.*
+xcuserdata/
+DerivedData/
+*.xcuserstate
+
+# Fastlane
+fastlane/report.xml
+fastlane/README.md
+fastlane/test_output/
+fastlane/screenshots/
+
+# ===== IDE / SO =====
 .idea/
+*.iml
 .vscode/*
 !.vscode/extensions.json
 .DS_Store
 Thumbs.db
+desktop.ini
+*.swp
+*~
 
-# Claude local
+# ===== Herramientas locales =====
 .claude/settings.local.json
+.docker/
+node_modules/
