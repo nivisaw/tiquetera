@@ -6,7 +6,7 @@ Formato: Decisión · Motivo · Descartado. Para cambiar una, añade un ADR nuev
 - **Motivo:** binario único, imagen Docker distroless ~15 MB, bajo consumo de RAM en VPS, concurrencia nativa, tipado estricto que reduce errores de agentes IA.
 - **Descartado:** Node.js (más dependencias transitivas → mayor superficie de supply-chain, imagen más pesada).
 
-## ADR-002 PostgreSQL 16
+## ADR-002 PostgreSQL 18 (actualizado desde 16 el 2026-11-03)
 - **Motivo:** transacciones y bloqueo de fila robustos (débito atómico), `CHECK` constraints, `timestamptz`, `uuid`, índices parciales.
 - **Descartado:** MySQL (CHECK/tipos de fecha menos estrictos).
 

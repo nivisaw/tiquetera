@@ -1,0 +1,25 @@
+version: "2"
+
+linters:
+  default: standard # errcheck, govet, ineffassign, staticcheck, unused
+  enable:
+    - gosec
+    - revive
+    - bodyclose
+    - sqlclosecheck
+    - contextcheck
+    - noctx
+    - errorlint
+    - misspell
+  exclusions:
+    rules:
+      - path: _test\.go
+        linters: [gosec]
+
+formatters:
+  enable:
+    - gofmt
+    - goimports
+  settings:
+    goimports:
+      local-prefixes: [tiquetera]

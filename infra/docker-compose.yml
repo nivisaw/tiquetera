@@ -2,7 +2,7 @@ name: tiquetera
 
 services:
   db:
-    image: postgres:16.6-alpine
+    image: postgres:18.6-alpine
     restart: unless-stopped
     environment:
       POSTGRES_DB: ${POSTGRES_DB:?required}
@@ -12,7 +12,7 @@ services:
     ports:
       - "127.0.0.1:${POSTGRES_HOST_PORT:-5442}:5432"
     volumes:
-      - db-data:/var/lib/postgresql/data
+      - db-data:/var/lib/postgresql # PG18+: datos en subdirectorio por versión (facilita pg_upgrade)
     networks: [backend]
     security_opt: ["no-new-privileges:true"]
     mem_limit: 512m
@@ -23,18 +23,28 @@ services:
       retries: 10
       start_period: 10s
 
-  # Placeholder: se implementa en S02 (backend/Dockerfile). Activar con --profile api
   api:
-    profiles: ["api"]
     build:
       context: ../backend
+    image: tiquetera-api:dev
     restart: unless-stopped
+    environment:
+      APP_ENV: ${APP_ENV:-dev}
+      HTTP_ADDR: ":8080"
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+      DB_MAX_CONNS: ${DB_MAX_CONNS:-10}
+      DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}?sslmode=disable
+      TZ: ${TZ:-America/Bogota}
+    ports:
+      - "127.0.0.1:${API_HOST_PORT:-8088}:8080"
     depends_on:
       db:
         condition: service_healthy
     networks: [backend]
     security_opt: ["no-new-privileges:true"]
+    cap_drop: [ALL]
     read_only: true
+    mem_limit: 256m
 
 volumes:
   db-data:

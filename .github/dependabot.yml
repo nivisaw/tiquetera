@@ -1,0 +1,55 @@
+# Actualizaciones de versión cada 2 meses (día 1, 08:00 Bogotá), agrupadas en un PR por ecosistema.
+# Las alertas/PRs de SEGURIDAD de Dependabot no dependen de este calendario: llegan de inmediato
+# (activar en GitHub: Settings → Code security → Dependabot alerts + security updates).
+version: 2
+
+updates:
+  - package-ecosystem: gomod
+    directory: /backend
+    schedule:
+      interval: cron
+      cronjob: "0 8 1 */2 *"
+      timezone: America/Bogota
+    groups:
+      go-modules:
+        patterns: ["*"]
+    open-pull-requests-limit: 5
+
+  - package-ecosystem: docker
+    directory: /backend
+    schedule:
+      interval: cron
+      cronjob: "0 8 1 */2 *"
+      timezone: America/Bogota
+    groups:
+      docker-backend:
+        patterns: ["*"]
+
+  - package-ecosystem: docker-compose
+    directory: /infra
+    schedule:
+      interval: cron
+      cronjob: "0 8 1 */2 *"
+      timezone: America/Bogota
+    groups:
+      docker-compose:
+        patterns: ["*"]
+    ignore:
+      # Saltos de versión mayor de Postgres requieren pg_upgrade planificado
+      - dependency-name: postgres
+        update-types: ["version-update:semver-major"]
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: cron
+      cronjob: "0 8 1 */2 *"
+      timezone: America/Bogota
+    groups:
+      actions:
+        patterns: ["*"]
+
+  # Se activa en S08 cuando exista mobile/pubspec.yaml
+  # - package-ecosystem: pub
+  #   directory: /mobile
+  #   schedule: (igual que arriba)
