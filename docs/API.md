@@ -13,7 +13,7 @@ Nunca exponer stack traces ni SQL.
 |---|---|---|---|
 | POST | /auth/login | público | `{username,password}` → `{access_token, refresh_token, expires_in, user{id,nombre,rol}}`. Rate limit 5/min/IP+user |
 | POST | /auth/refresh | público | rota refresh |
-| POST | /auth/logout | auth | revoca familia |
+| POST | /auth/logout | auth | `{refresh_token}`; revoca familia |
 
 ## Clientes (admin)
 | Método | Ruta | Notas |
@@ -26,6 +26,7 @@ Nunca exponer stack traces ni SQL.
 | POST | /clientes/{id}/qr/regenerar | invalida QR anterior → `{qr_payload}` |
 | GET | /clientes/{id}/consumos | historial paginado |
 
+Listados: `{items, page, size, total}` (`page` desde 1).
 Validaciones: teléfono E.164 (default país +57), almuerzos 1..500, fecha_vencimiento >= hoy (Bogotá).
 
 ## Consumos (cajero, admin)
@@ -40,7 +41,7 @@ Repetir misma Idempotency-Key → misma respuesta original, sin nuevo débito.
 Rate limit: 60/min por cajero.
 
 ## Usuarios (admin)
-CRUD básico `/usuarios` (crear cajero, desactivar, reset contraseña).
+CRUD básico `/usuarios` (crear cajero, desactivar vía `PATCH /usuarios/{id}`, reset con `PUT /usuarios/{id}/password`).
 
 ## Reportes (admin, fase 2)
 `GET /reportes/consumos?desde=&hasta=&cajero_id=`

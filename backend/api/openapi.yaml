@@ -1,0 +1,619 @@
+openapi: 3.1.0
+info:
+  title: Tiquetera de Almuerzos API
+  version: 1.0.0
+  description: Contrato v1. Debe mantenerse sincronizado con docs/API.md.
+  license:
+    name: Propietaria
+    identifier: LicenseRef-Proprietary
+servers:
+  - url: /v1
+security:
+  - bearerAuth: []
+tags:
+  - name: auth
+    description: Sesión
+  - name: clientes
+    description: Clientes y tiqueteras (admin)
+  - name: consumos
+    description: Débito de almuerzos (cajero, admin)
+  - name: usuarios
+    description: Usuarios del sistema (admin)
+  - name: reportes
+    description: Reportes (admin, fase 2)
+  - name: salud
+    description: Estado del servicio
+paths:
+  /auth/login:
+    post:
+      tags: [auth]
+      operationId: login
+      summary: Inicia sesión
+      description: Rate limit 5/min por IP y usuario. Bloqueo tras 5 fallos.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/LoginRequest' }
+      responses:
+        '200':
+          description: Sesión creada
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Session' }
+        '400': { $ref: '#/components/responses/Problem' }
+        '401': { $ref: '#/components/responses/Problem' }
+        '429': { $ref: '#/components/responses/Problem' }
+  /auth/refresh:
+    post:
+      tags: [auth]
+      operationId: refreshSession
+      summary: Rota el refresh token
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/RefreshRequest' }
+      responses:
+        '200':
+          description: Tokens rotados
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Session' }
+        '400': { $ref: '#/components/responses/Problem' }
+        '401': { $ref: '#/components/responses/Problem' }
+  /auth/logout:
+    post:
+      tags: [auth]
+      operationId: logout
+      summary: Revoca la familia de refresh tokens
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/RefreshRequest' }
+      responses:
+        '204': { description: Sesión cerrada }
+        '401': { $ref: '#/components/responses/Problem' }
+  /clientes:
+    post:
+      tags: [clientes]
+      operationId: createCliente
+      summary: Registra un cliente con su primera tiquetera
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CreateClienteRequest' }
+      responses:
+        '201':
+          description: Cliente creado. Único momento, junto con regenerar, en que se devuelve qr_payload.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/CreateClienteResponse' }
+        '400': { $ref: '#/components/responses/Problem' }
+        '401': { $ref: '#/components/responses/Problem' }
+        '403': { $ref: '#/components/responses/Problem' }
+        '409': { $ref: '#/components/responses/Problem' }
+        '422': { $ref: '#/components/responses/Problem' }
+    get:
+      tags: [clientes]
+      operationId: listClientes
+      summary: Busca clientes por nombre o teléfono
+      parameters:
+        - { name: q, in: query, schema: { type: string, maxLength: 120 } }
+        - { $ref: '#/components/parameters/Page' }
+        - { $ref: '#/components/parameters/Size' }
+      responses:
+        '200':
+          description: Página de clientes
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ClientePage' }
+        '400': { $ref: '#/components/responses/Problem' }
+        '401': { $ref: '#/components/responses/Problem' }
+        '403': { $ref: '#/components/responses/Problem' }
+  /clientes/{id}:
+    parameters:
+      - { $ref: '#/components/parameters/Id' }
+    get:
+      tags: [clientes]
+      operationId: getCliente
+      summary: Obtiene un cliente con su tiquetera activa
+      responses:
+        '200':
+          description: Cliente
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ClienteDetalle' }
+        '401': { $ref: '#/components/responses/Problem' }
+        '403': { $ref: '#/components/responses/Problem' }
+        '404': { $ref: '#/components/responses/Problem' }
+    patch:
+      tags: [clientes]
+      operationId: updateCliente
+      summary: Actualiza datos básicos
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/UpdateClienteRequest' }
+      responses:
+        '200':
+          description: Cliente actualizado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Cliente' }
+        '400': { $ref: '#/components/responses/Problem' }
+        '401': { $ref: '#/components/responses/Problem' }
+        '403': { $ref: '#/components/responses/Problem' }
+        '404': { $ref: '#/components/responses/Problem' }
+        '409': { $ref: '#/components/responses/Problem' }
+        '422': { $ref: '#/components/responses/Problem' }
+  /clientes/{id}/tiqueteras:
+    parameters:
+      - { $ref: '#/components/parameters/Id' }
+    post:
+      tags: [clientes]
+      operationId: createTiquetera
+      summary: Recarga; desactiva la tiquetera anterior
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CreateTiqueteraRequest' }
+      responses:
+        '201':
+          description: Tiquetera creada
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Tiquetera' }
+        '400': { $ref: '#/components/responses/Problem' }
+        '401': { $ref: '#/components/responses/Problem' }
+        '403': { $ref: '#/components/responses/Problem' }
+        '404': { $ref: '#/components/responses/Problem' }
+        '422': { $ref: '#/components/responses/Problem' }
+  /clientes/{id}/qr/regenerar:
+    parameters:
+      - { $ref: '#/components/parameters/Id' }
+    post:
+      tags: [clientes]
+      operationId: regenerarQr
+      summary: Invalida el QR anterior y genera uno nuevo
+      responses:
+        '200':
+          description: QR nuevo
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [qr_payload]
+                properties:
+                  qr_payload: { $ref: '#/components/schemas/QrPayload' }
+        '401': { $ref: '#/components/responses/Problem' }
+        '403': { $ref: '#/components/responses/Problem' }
+        '404': { $ref: '#/components/responses/Problem' }
+  /clientes/{id}/consumos:
+    parameters:
+      - { $ref: '#/components/parameters/Id' }
+    get:
+      tags: [clientes]
+      operationId: listConsumosCliente
+      summary: Historial de consumos del cliente
+      parameters:
+        - { $ref: '#/components/parameters/Page' }
+        - { $ref: '#/components/parameters/Size' }
+      responses:
+        '200':
+          description: Página de consumos
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ConsumoPage' }
+        '401': { $ref: '#/components/responses/Problem' }
+        '403': { $ref: '#/components/responses/Problem' }
+        '404': { $ref: '#/components/responses/Problem' }
+  /consumos:
+    post:
+      tags: [consumos]
+      operationId: createConsumo
+      summary: Debita un almuerzo
+      description: Repetir la misma Idempotency-Key devuelve la respuesta original sin nuevo débito. Rate limit 60/min por cajero.
+      parameters:
+        - name: Idempotency-Key
+          in: header
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CreateConsumoRequest' }
+      responses:
+        '200':
+          description: Almuerzo registrado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ConsumoResultado' }
+        '400': { $ref: '#/components/responses/Problem' }
+        '401': { $ref: '#/components/responses/Problem' }
+        '403': { $ref: '#/components/responses/Problem' }
+        '422':
+          description: Consumo rechazado
+          content:
+            application/problem+json:
+              schema: { $ref: '#/components/schemas/ConsumoRechazado' }
+        '429': { $ref: '#/components/responses/Problem' }
+  /usuarios:
+    post:
+      tags: [usuarios]
+      operationId: createUsuario
+      summary: Crea un usuario
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CreateUsuarioRequest' }
+      responses:
+        '201':
+          description: Usuario creado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Usuario' }
+        '400': { $ref: '#/components/responses/Problem' }
+        '401': { $ref: '#/components/responses/Problem' }
+        '403': { $ref: '#/components/responses/Problem' }
+        '409': { $ref: '#/components/responses/Problem' }
+    get:
+      tags: [usuarios]
+      operationId: listUsuarios
+      summary: Lista usuarios
+      parameters:
+        - { $ref: '#/components/parameters/Page' }
+        - { $ref: '#/components/parameters/Size' }
+      responses:
+        '200':
+          description: Página de usuarios
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/UsuarioPage' }
+        '401': { $ref: '#/components/responses/Problem' }
+        '403': { $ref: '#/components/responses/Problem' }
+  /usuarios/{id}:
+    parameters:
+      - { $ref: '#/components/parameters/Id' }
+    get:
+      tags: [usuarios]
+      operationId: getUsuario
+      summary: Obtiene un usuario
+      responses:
+        '200':
+          description: Usuario
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Usuario' }
+        '401': { $ref: '#/components/responses/Problem' }
+        '403': { $ref: '#/components/responses/Problem' }
+        '404': { $ref: '#/components/responses/Problem' }
+    patch:
+      tags: [usuarios]
+      operationId: updateUsuario
+      summary: Actualiza o desactiva un usuario
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/UpdateUsuarioRequest' }
+      responses:
+        '200':
+          description: Usuario actualizado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Usuario' }
+        '400': { $ref: '#/components/responses/Problem' }
+        '401': { $ref: '#/components/responses/Problem' }
+        '403': { $ref: '#/components/responses/Problem' }
+        '404': { $ref: '#/components/responses/Problem' }
+  /usuarios/{id}/password:
+    parameters:
+      - { $ref: '#/components/parameters/Id' }
+    put:
+      tags: [usuarios]
+      operationId: resetUsuarioPassword
+      summary: Restablece la contraseña
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [password]
+              properties:
+                password: { type: string, minLength: 10, maxLength: 128 }
+      responses:
+        '204': { description: Contraseña actualizada }
+        '400': { $ref: '#/components/responses/Problem' }
+        '401': { $ref: '#/components/responses/Problem' }
+        '403': { $ref: '#/components/responses/Problem' }
+        '404': { $ref: '#/components/responses/Problem' }
+  /reportes/consumos:
+    get:
+      tags: [reportes]
+      operationId: reporteConsumos
+      summary: Reporte de consumos (fase 2)
+      parameters:
+        - { name: desde, in: query, required: true, schema: { type: string, format: date } }
+        - { name: hasta, in: query, required: true, schema: { type: string, format: date } }
+        - { name: cajero_id, in: query, schema: { type: string, format: uuid } }
+        - { $ref: '#/components/parameters/Page' }
+        - { $ref: '#/components/parameters/Size' }
+      responses:
+        '200':
+          description: Página de consumos
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ConsumoPage' }
+        '400': { $ref: '#/components/responses/Problem' }
+        '401': { $ref: '#/components/responses/Problem' }
+        '403': { $ref: '#/components/responses/Problem' }
+  /healthz:
+    servers:
+      - url: /
+    get:
+      tags: [salud]
+      operationId: healthz
+      summary: Proceso vivo
+      security: []
+      responses:
+        '200': { description: Disponible }
+  /readyz:
+    servers:
+      - url: /
+    get:
+      tags: [salud]
+      operationId: readyz
+      summary: Listo para recibir tráfico
+      security: []
+      responses:
+        '200': { description: Listo }
+        '503': { description: No disponible }
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  parameters:
+    Id:
+      name: id
+      in: path
+      required: true
+      schema: { type: string, format: uuid }
+    Page:
+      name: page
+      in: query
+      schema: { type: integer, minimum: 1, default: 1 }
+    Size:
+      name: size
+      in: query
+      schema: { type: integer, minimum: 1, maximum: 50, default: 20 }
+  responses:
+    Problem:
+      description: Error RFC 7807
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/Problem' }
+  schemas:
+    Problem:
+      type: object
+      required: [type, title, status]
+      properties:
+        type: { type: string }
+        title: { type: string }
+        status: { type: integer }
+        code: { type: string }
+        detail: { type: string }
+    ConsumoRechazado:
+      allOf:
+        - $ref: '#/components/schemas/Problem'
+        - type: object
+          required: [code]
+          properties:
+            code:
+              type: string
+              enum: [QR_INVALIDO, CLIENTE_NO_EXISTE, CLIENTE_INACTIVO, SIN_TIQUETERA, TIQUETERA_VENCIDA, SIN_SALDO]
+    LoginRequest:
+      type: object
+      required: [username, password]
+      properties:
+        username: { type: string, minLength: 3, maxLength: 50 }
+        password: { type: string, minLength: 1, maxLength: 128 }
+    RefreshRequest:
+      type: object
+      required: [refresh_token]
+      properties:
+        refresh_token: { type: string, maxLength: 512 }
+    Rol:
+      type: string
+      enum: [admin, cajero]
+    Session:
+      type: object
+      required: [access_token, refresh_token, expires_in, user]
+      properties:
+        access_token: { type: string }
+        refresh_token: { type: string }
+        expires_in: { type: integer, description: Segundos }
+        user:
+          type: object
+          required: [id, nombre, rol]
+          properties:
+            id: { type: string, format: uuid }
+            nombre: { type: string }
+            rol: { $ref: '#/components/schemas/Rol' }
+    Telefono:
+      type: string
+      pattern: '^\+[1-9][0-9]{7,14}$'
+      description: E.164
+    QrPayload:
+      type: string
+      description: Formato TQ1.<token>. Solo se devuelve al crear el cliente o regenerar el QR.
+    Almuerzos:
+      type: integer
+      minimum: 1
+      maximum: 500
+    Cliente:
+      type: object
+      required: [id, nombre, telefono, activo, qr_version, created_at, updated_at]
+      properties:
+        id: { type: string, format: uuid }
+        nombre: { type: string }
+        telefono: { $ref: '#/components/schemas/Telefono' }
+        documento: { type: [string, 'null'] }
+        email: { type: [string, 'null'], format: email }
+        activo: { type: boolean }
+        qr_version: { type: integer }
+        created_at: { type: string, format: date-time }
+        updated_at: { type: string, format: date-time }
+    Tiquetera:
+      type: object
+      required: [id, cliente_id, almuerzos_comprados, saldo, fecha_vencimiento, activa, created_at]
+      properties:
+        id: { type: string, format: uuid }
+        cliente_id: { type: string, format: uuid }
+        almuerzos_comprados: { $ref: '#/components/schemas/Almuerzos' }
+        saldo: { type: integer, minimum: 0 }
+        fecha_vencimiento: { type: string, format: date }
+        activa: { type: boolean }
+        created_at: { type: string, format: date-time }
+    ClienteDetalle:
+      allOf:
+        - $ref: '#/components/schemas/Cliente'
+        - type: object
+          required: [tiquetera]
+          properties:
+            tiquetera:
+              oneOf:
+                - $ref: '#/components/schemas/Tiquetera'
+                - type: 'null'
+    CreateClienteRequest:
+      type: object
+      required: [nombre, telefono, almuerzos, fecha_vencimiento]
+      properties:
+        nombre: { type: string, minLength: 2, maxLength: 120 }
+        telefono: { type: string, maxLength: 20, description: Se normaliza a E.164 con +57 por defecto }
+        documento: { type: string, minLength: 1, maxLength: 30 }
+        email: { type: string, format: email, maxLength: 254 }
+        almuerzos: { $ref: '#/components/schemas/Almuerzos' }
+        fecha_vencimiento: { type: string, format: date, description: Mayor o igual a hoy en Bogotá }
+    CreateClienteResponse:
+      type: object
+      required: [cliente, tiquetera, qr_payload]
+      properties:
+        cliente: { $ref: '#/components/schemas/Cliente' }
+        tiquetera: { $ref: '#/components/schemas/Tiquetera' }
+        qr_payload: { $ref: '#/components/schemas/QrPayload' }
+    UpdateClienteRequest:
+      type: object
+      minProperties: 1
+      properties:
+        nombre: { type: string, minLength: 2, maxLength: 120 }
+        telefono: { type: string, maxLength: 20 }
+        documento: { type: [string, 'null'], minLength: 1, maxLength: 30 }
+        email: { type: [string, 'null'], format: email, maxLength: 254 }
+        activo: { type: boolean }
+    CreateTiqueteraRequest:
+      type: object
+      required: [almuerzos, fecha_vencimiento]
+      properties:
+        almuerzos: { $ref: '#/components/schemas/Almuerzos' }
+        fecha_vencimiento: { type: string, format: date, description: Mayor o igual a hoy en Bogotá }
+    CreateConsumoRequest:
+      type: object
+      required: [qr]
+      properties:
+        qr: { type: string, maxLength: 128 }
+    ConsumoResultado:
+      type: object
+      required: [ok, cliente, saldo_restante, fecha_vencimiento, fecha_hora]
+      properties:
+        ok: { type: boolean, const: true }
+        cliente:
+          type: object
+          required: [nombre]
+          properties:
+            nombre: { type: string }
+        saldo_restante: { type: integer, minimum: 0 }
+        fecha_vencimiento: { type: string, format: date }
+        fecha_hora: { type: string, format: date-time }
+    Consumo:
+      type: object
+      required: [id, tiquetera_id, cliente_id, cajero_id, fecha_hora, saldo_resultante]
+      properties:
+        id: { type: string, format: uuid }
+        tiquetera_id: { type: string, format: uuid }
+        cliente_id: { type: string, format: uuid }
+        cajero_id: { type: string, format: uuid }
+        fecha_hora: { type: string, format: date-time }
+        saldo_resultante: { type: integer, minimum: 0 }
+    Usuario:
+      type: object
+      required: [id, username, nombre, rol, activo]
+      properties:
+        id: { type: string, format: uuid }
+        username: { type: string }
+        nombre: { type: string }
+        rol: { $ref: '#/components/schemas/Rol' }
+        activo: { type: boolean }
+    CreateUsuarioRequest:
+      type: object
+      required: [username, password, nombre, rol]
+      properties:
+        username: { type: string, minLength: 3, maxLength: 50 }
+        password: { type: string, minLength: 10, maxLength: 128 }
+        nombre: { type: string, minLength: 2, maxLength: 120 }
+        rol: { $ref: '#/components/schemas/Rol' }
+    UpdateUsuarioRequest:
+      type: object
+      minProperties: 1
+      properties:
+        nombre: { type: string, minLength: 2, maxLength: 120 }
+        rol: { $ref: '#/components/schemas/Rol' }
+        activo: { type: boolean }
+    PageMeta:
+      type: object
+      required: [page, size, total]
+      properties:
+        page: { type: integer, minimum: 1 }
+        size: { type: integer, minimum: 1, maximum: 50 }
+        total: { type: integer, minimum: 0 }
+    ClientePage:
+      allOf:
+        - $ref: '#/components/schemas/PageMeta'
+        - type: object
+          required: [items]
+          properties:
+            items:
+              type: array
+              maxItems: 50
+              items: { $ref: '#/components/schemas/Cliente' }
+    ConsumoPage:
+      allOf:
+        - $ref: '#/components/schemas/PageMeta'
+        - type: object
+          required: [items]
+          properties:
+            items:
+              type: array
+              maxItems: 50
+              items: { $ref: '#/components/schemas/Consumo' }
+    UsuarioPage:
+      allOf:
+        - $ref: '#/components/schemas/PageMeta'
+        - type: object
+          required: [items]
+          properties:
+            items:
+              type: array
+              maxItems: 50
+              items: { $ref: '#/components/schemas/Usuario' }
