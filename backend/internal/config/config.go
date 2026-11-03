@@ -39,7 +39,7 @@ func Load(getenv Getenv) (Config, error) {
 		errs = append(errs, fmt.Errorf("APP_ENV must be dev, test or prod"))
 	}
 
-	dbURL, err := secret(getenv, "DATABASE_URL")
+	dbURL, err := Secret(getenv, "DATABASE_URL")
 	if err != nil {
 		errs = append(errs, err)
 	} else if dbURL == "" {
@@ -60,7 +60,8 @@ func Load(getenv Getenv) (Config, error) {
 	return cfg, errors.Join(errs...)
 }
 
-func secret(getenv Getenv, name string) (string, error) {
+// Secret reads NAME_FILE when set, otherwise NAME.
+func Secret(getenv Getenv, name string) (string, error) {
 	if path := getenv(name + "_FILE"); path != "" {
 		b, err := os.ReadFile(path) //nolint:gosec // path comes from operator-controlled env
 		if err != nil {

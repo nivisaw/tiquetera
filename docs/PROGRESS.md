@@ -3,7 +3,7 @@
 Regla: entradas breves (≤ 8 líneas por sesión). Lo más reciente arriba. Solo hechos útiles para el siguiente agente.
 
 ## Estado actual
-- **Siguiente sesión:** S03
+- **Siguiente sesión:** S04
 - **Bloqueos:** ninguno
 
 ## Historial
@@ -14,6 +14,12 @@ Regla: entradas breves (≤ 8 líneas por sesión). Lo más reciente arriba. Sol
 - Pendiente/deuda:
 - Comandos de verificación:
 -->
+
+### S03 — Migraciones, sqlc y OpenAPI — 2026-11-03 — ✅
+- Hecho: migraciones 0001-0005 (7 tablas), rol `tiquetera_app` sin DELETE (la API ya no usa owner), sqlc en `internal/repository/postgres/sqlcgen`, queries base, `api/openapi.yaml`, `cmd/seed` idempotente, `platform.HashPassword`, targets `migrate`, `migrate-down`, `sqlc`, `seed`.
+- Decisiones: restricciones extra no pedidas en DATA_MODEL: saldo <= comprados, FK compuesta consumos→tiqueteras(id, cliente_id), trigger append-only en consumos, CHECK de motivo. `audit_log.usuario_id` nullable (login fallido sin usuario). Grants explícitos: cada tabla nueva debe otorgarlos en su migración. PG18 devuelve `23001` (no `23503`) en FK RESTRICT. Deps nuevas aprobadas: uuid 1.6.0, x/crypto 0.58.0, migrate 4.20.1, testcontainers 0.44.0.
+- Pendiente: S04 añade Verify y queries de refresh/bloqueo. S05: `EXPLAIN` de `SearchClientes`, escapar `%`/`_` de `q` y mapear `23505`. Sin `EXPLAIN` hecho en S03. GO-2026-5932 (x/crypto/openpgp) sin llamadas desde el código; subir x/crypto cuando haya release estable.
+- Verificación: `make` no existe en host: comandos equivalentes en Docker (`make -n` validó targets). lint 0 issues, test verde, migrate up/down/up, seed 2 veces, `readyz` 200 con rol app. OpenAPI: redocly válido, 2 warnings (health sin 4xx).
 
 ### S02 — Esqueleto backend Go — 2026-11-03 — ✅
 - Hecho: módulo `tiquetera` (chi v5.2.1, pgx v5.7.2), config por env + `*_FILE`, slog JSON, middlewares (request-id, log, recover, security headers, body 64KB, timeout 10s), RFC7807, `/healthz` `/readyz`, graceful shutdown, subcomando `healthcheck` para distroless. Dockerfile multi-stage (19 MB, nonroot). api activa en compose (`127.0.0.1:8088`). CI: test -race, golangci-lint v2, govulncheck, trivy. `.gitignore` ampliado (secretos, firmas, builds móviles, backups) + `backend/.dockerignore` (whitelist).

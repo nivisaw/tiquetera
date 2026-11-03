@@ -11,6 +11,9 @@ linters:
     - noctx
     - errorlint
     - misspell
+  settings:
+    misspell:
+      ignore-rules: [clientes]
   exclusions:
     rules:
       - path: _test\.go
