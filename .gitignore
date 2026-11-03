@@ -1,0 +1,33 @@
+# Secretos
+.env
+*.env
+!*.env.example
+infra/secrets/
+*.pem
+*.key
+*.jks
+*.keystore
+key.properties
+
+# Go
+backend/bin/
+backend/coverage.*
+*.test
+
+# Flutter / Dart
+mobile/.dart_tool/
+mobile/build/
+mobile/.flutter-plugins*
+mobile/ios/Pods/
+mobile/android/.gradle/
+mobile/android/local.properties
+
+# IDE / SO
+.idea/
+.vscode/*
+!.vscode/extensions.json
+.DS_Store
+Thumbs.db
+
+# Claude local
+.claude/settings.local.json

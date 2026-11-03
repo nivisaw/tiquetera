@@ -1,0 +1,43 @@
+name: tiquetera
+
+services:
+  db:
+    image: postgres:16.6-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:?required}
+      POSTGRES_USER: ${POSTGRES_USER:?required}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?required}
+      TZ: ${TZ:-America/Bogota}
+    ports:
+      - "127.0.0.1:${POSTGRES_HOST_PORT:-5442}:5432"
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    networks: [backend]
+    security_opt: ["no-new-privileges:true"]
+    mem_limit: 512m
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 10s
+
+  # Placeholder: se implementa en S02 (backend/Dockerfile). Activar con --profile api
+  api:
+    profiles: ["api"]
+    build:
+      context: ../backend
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    networks: [backend]
+    security_opt: ["no-new-privileges:true"]
+    read_only: true
+
+volumes:
+  db-data:
+
+networks:
+  backend:
