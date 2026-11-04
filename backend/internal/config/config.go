@@ -2,6 +2,8 @@
 package config
 
 import (
+	"crypto/ed25519"
+	"encoding/base64"
 	"errors"
 	"fmt"
 	"log/slog"
@@ -19,6 +21,9 @@ type Config struct {
 	DBMaxConns      int32
 	LogLevel        slog.Level
 	ShutdownTimeout time.Duration
+	JWTPrivateKey   ed25519.PrivateKey
+	// TrustProxyHeaders enables X-Forwarded-For; set it only behind a proxy.
+	TrustProxyHeaders bool
 }
 
 // Getenv abstracts environment lookup for testability.
@@ -57,7 +62,30 @@ func Load(getenv Getenv) (Config, error) {
 		errs = append(errs, errors.New("LOG_LEVEL must be debug, info, warn or error"))
 	}
 
+	cfg.JWTPrivateKey, err = loadJWTKey(getenv)
+	if err != nil {
+		errs = append(errs, err)
+	}
+
+	cfg.TrustProxyHeaders, err = strconv.ParseBool(valueOr(getenv("TRUST_PROXY_HEADERS"), "false"))
+	if err != nil {
+		errs = append(errs, errors.New("TRUST_PROXY_HEADERS must be true or false"))
+	}
+
 	return cfg, errors.Join(errs...)
+}
+
+// loadJWTKey reads an Ed25519 seed encoded in base64. The value is never echoed.
+func loadJWTKey(getenv Getenv) (ed25519.PrivateKey, error) {
+	encoded, err := Secret(getenv, "JWT_PRIVATE_KEY")
+	if err != nil {
+		return nil, err
+	}
+	seed, err := base64.StdEncoding.DecodeString(encoded)
+	if err != nil || len(seed) != ed25519.SeedSize {
+		return nil, errors.New("JWT_PRIVATE_KEY must be a base64-encoded 32-byte seed (openssl rand -base64 32)")
+	}
+	return ed25519.NewKeyFromSeed(seed), nil
 }
 
 // Secret reads NAME_FILE when set, otherwise NAME.

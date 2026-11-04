@@ -9,7 +9,30 @@ import (
 	"context"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgtype"
 )
+
+const createRefreshToken = `-- name: CreateRefreshToken :exec
+INSERT INTO refresh_tokens (usuario_id, token_hash, family_id, expires_at)
+VALUES ($1, $2, $3, $4)
+`
+
+type CreateRefreshTokenParams struct {
+	UsuarioID uuid.UUID
+	TokenHash []byte
+	FamilyID  uuid.UUID
+	ExpiresAt pgtype.Timestamptz
+}
+
+func (q *Queries) CreateRefreshToken(ctx context.Context, arg CreateRefreshTokenParams) error {
+	_, err := q.db.Exec(ctx, createRefreshToken,
+		arg.UsuarioID,
+		arg.TokenHash,
+		arg.FamilyID,
+		arg.ExpiresAt,
+	)
+	return err
+}
 
 const createUsuarioIfAbsent = `-- name: CreateUsuarioIfAbsent :execrows
 INSERT INTO usuarios (username, password_hash, nombre, rol)
@@ -37,12 +60,54 @@ func (q *Queries) CreateUsuarioIfAbsent(ctx context.Context, arg CreateUsuarioIf
 	return result.RowsAffected(), nil
 }
 
+const getRefreshTokenByHashForUpdate = `-- name: GetRefreshTokenByHashForUpdate :one
+SELECT id, usuario_id, token_hash, family_id, expires_at, revoked_at, created_at, updated_at FROM refresh_tokens WHERE token_hash = $1 FOR UPDATE
+`
+
+func (q *Queries) GetRefreshTokenByHashForUpdate(ctx context.Context, tokenHash []byte) (RefreshToken, error) {
+	row := q.db.QueryRow(ctx, getRefreshTokenByHashForUpdate, tokenHash)
+	var i RefreshToken
+	err := row.Scan(
+		&i.ID,
+		&i.UsuarioID,
+		&i.TokenHash,
+		&i.FamilyID,
+		&i.ExpiresAt,
+		&i.RevokedAt,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
 const getUsuarioByID = `-- name: GetUsuarioByID :one
 SELECT id, username, password_hash, nombre, rol, activo, failed_logins, locked_until, created_at, updated_at FROM usuarios WHERE id = $1
 `
 
 func (q *Queries) GetUsuarioByID(ctx context.Context, id uuid.UUID) (Usuario, error) {
 	row := q.db.QueryRow(ctx, getUsuarioByID, id)
+	var i Usuario
+	err := row.Scan(
+		&i.ID,
+		&i.Username,
+		&i.PasswordHash,
+		&i.Nombre,
+		&i.Rol,
+		&i.Activo,
+		&i.FailedLogins,
+		&i.LockedUntil,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const getUsuarioByIDForUpdate = `-- name: GetUsuarioByIDForUpdate :one
+SELECT id, username, password_hash, nombre, rol, activo, failed_logins, locked_until, created_at, updated_at FROM usuarios WHERE id = $1 FOR UPDATE
+`
+
+func (q *Queries) GetUsuarioByIDForUpdate(ctx context.Context, id uuid.UUID) (Usuario, error) {
+	row := q.db.QueryRow(ctx, getUsuarioByIDForUpdate, id)
 	var i Usuario
 	err := row.Scan(
 		&i.ID,
@@ -79,4 +144,50 @@ func (q *Queries) GetUsuarioByUsername(ctx context.Context, username string) (Us
 		&i.UpdatedAt,
 	)
 	return i, err
+}
+
+const revokeRefreshFamily = `-- name: RevokeRefreshFamily :execrows
+UPDATE refresh_tokens SET revoked_at = $2 WHERE family_id = $1 AND revoked_at IS NULL
+`
+
+type RevokeRefreshFamilyParams struct {
+	FamilyID  uuid.UUID
+	RevokedAt pgtype.Timestamptz
+}
+
+func (q *Queries) RevokeRefreshFamily(ctx context.Context, arg RevokeRefreshFamilyParams) (int64, error) {
+	result, err := q.db.Exec(ctx, revokeRefreshFamily, arg.FamilyID, arg.RevokedAt)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
+}
+
+const revokeRefreshToken = `-- name: RevokeRefreshToken :exec
+UPDATE refresh_tokens SET revoked_at = $2 WHERE id = $1
+`
+
+type RevokeRefreshTokenParams struct {
+	ID        uuid.UUID
+	RevokedAt pgtype.Timestamptz
+}
+
+func (q *Queries) RevokeRefreshToken(ctx context.Context, arg RevokeRefreshTokenParams) error {
+	_, err := q.db.Exec(ctx, revokeRefreshToken, arg.ID, arg.RevokedAt)
+	return err
+}
+
+const updateUsuarioLoginState = `-- name: UpdateUsuarioLoginState :exec
+UPDATE usuarios SET failed_logins = $2, locked_until = $3 WHERE id = $1
+`
+
+type UpdateUsuarioLoginStateParams struct {
+	ID           uuid.UUID
+	FailedLogins int32
+	LockedUntil  pgtype.Timestamptz
+}
+
+func (q *Queries) UpdateUsuarioLoginState(ctx context.Context, arg UpdateUsuarioLoginStateParams) error {
+	_, err := q.db.Exec(ctx, updateUsuarioLoginState, arg.ID, arg.FailedLogins, arg.LockedUntil)
+	return err
 }

@@ -11,9 +11,11 @@ Nunca exponer stack traces ni SQL.
 ## Auth
 | Método | Ruta | Rol | Notas |
 |---|---|---|---|
-| POST | /auth/login | público | `{username,password}` → `{access_token, refresh_token, expires_in, user{id,nombre,rol}}`. Rate limit 5/min/IP+user |
-| POST | /auth/refresh | público | rota refresh |
-| POST | /auth/logout | auth | `{refresh_token}`; revoca familia |
+| POST | /auth/login | público | `{username,password}` → `{access_token, refresh_token, expires_in, user{id,nombre,rol}}`. Rate limit 5/min/IP+user (429 `RATE_LIMITED`). Bloqueo 15 min tras 5 fallos. Credenciales malas, inactivo y bloqueado: mismo 401 `INVALID_CREDENTIALS` |
+| POST | /auth/refresh | público | `{refresh_token}`; rota refresh. Inválido, vencido o reutilizado: 401 `INVALID_REFRESH_TOKEN`; reutilizado revoca familia |
+| POST | /auth/logout | auth | `{refresh_token}`; revoca familia. 204 también si el token es desconocido o ajeno (no revoca nada) |
+
+Sin token válido: 401 `UNAUTHENTICATED`. Rol insuficiente: 403 `FORBIDDEN`. Entrada inválida: 400 `INVALID_REQUEST`.
 
 ## Clientes (admin)
 | Método | Ruta | Notas |

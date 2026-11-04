@@ -15,9 +15,12 @@ import (
 
 	"github.com/jackc/pgx/v5/pgxpool"
 
+	"tiquetera/internal/auth"
 	"tiquetera/internal/config"
 	apihttp "tiquetera/internal/http"
 	"tiquetera/internal/platform"
+	"tiquetera/internal/repository/postgres"
+	"tiquetera/internal/service"
 )
 
 func main() {
@@ -46,7 +49,20 @@ func run() error {
 	}
 	defer pool.Close()
 
-	srv := apihttp.NewServer(cfg.HTTPAddr, apihttp.NewRouter(apihttp.Deps{Log: log, DB: pool}))
+	clock := platform.SystemClock{}
+	tokens := auth.NewTokenManager(cfg.JWTPrivateKey, clock)
+	authSvc, err := service.NewAuthService(postgres.NewAuthRepository(pool), tokens, clock)
+	if err != nil {
+		return fmt.Errorf("auth service: %w", err)
+	}
+
+	srv := apihttp.NewServer(cfg.HTTPAddr, apihttp.NewRouter(apihttp.Deps{
+		Log:               log,
+		DB:                pool,
+		Auth:              authSvc,
+		Tokens:            tokens,
+		TrustProxyHeaders: cfg.TrustProxyHeaders,
+	}))
 
 	errCh := make(chan error, 1)
 	go func() {

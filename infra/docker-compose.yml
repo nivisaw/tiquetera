@@ -34,6 +34,8 @@ services:
       LOG_LEVEL: ${LOG_LEVEL:-info}
       DB_MAX_CONNS: ${DB_MAX_CONNS:-10}
       DATABASE_URL: postgres://tiquetera_app:${APP_DB_PASSWORD:?required}@db:5432/${POSTGRES_DB}?sslmode=disable
+      JWT_PRIVATE_KEY: ${JWT_PRIVATE_KEY:?required}
+      TRUST_PROXY_HEADERS: ${TRUST_PROXY_HEADERS:-false}
       TZ: ${TZ:-America/Bogota}
     ports:
       - "127.0.0.1:${API_HOST_PORT:-8088}:8080"

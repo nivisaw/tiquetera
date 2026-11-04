@@ -29,7 +29,7 @@ paths:
       tags: [auth]
       operationId: login
       summary: Inicia sesión
-      description: Rate limit 5/min por IP y usuario. Bloqueo tras 5 fallos.
+      description: Rate limit 5/min por IP y usuario. Bloqueo de 15 min tras 5 fallos. Credenciales malas, usuario inactivo y cuenta bloqueada responden igual (401 INVALID_CREDENTIALS).
       security: []
       requestBody:
         required: true
@@ -75,7 +75,8 @@ paths:
           application/json:
             schema: { $ref: '#/components/schemas/RefreshRequest' }
       responses:
-        '204': { description: Sesión cerrada }
+        '204': { description: Sesión cerrada. También si el token es desconocido o de otro usuario (no revoca nada). }
+        '400': { $ref: '#/components/responses/Problem' }
         '401': { $ref: '#/components/responses/Problem' }
   /clientes:
     post:

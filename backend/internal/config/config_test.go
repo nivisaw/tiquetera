@@ -10,12 +10,43 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+const testJWTKey = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="
+
 func env(m map[string]string) Getenv {
 	return func(k string) string { return m[k] }
 }
 
+func TestLoad_JWTKey_ValidatesSeedWithoutEchoingIt(t *testing.T) {
+	for name, value := range map[string]string{"missing": "", "not base64": "@@@", "short": "AAAA"} {
+		t.Run(name, func(t *testing.T) {
+			_, err := Load(env(map[string]string{"DATABASE_URL": "postgres://x", "JWT_PRIVATE_KEY": value}))
+			require.ErrorContains(t, err, "JWT_PRIVATE_KEY")
+			if value != "" {
+				assert.NotContains(t, err.Error(), value)
+			}
+		})
+	}
+}
+
+func TestLoad_JWTKeyFromFile_Valid(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "jwt")
+	require.NoError(t, os.WriteFile(path, []byte(testJWTKey+"\n"), 0o600))
+	cfg, err := Load(env(map[string]string{"DATABASE_URL": "postgres://x", "JWT_PRIVATE_KEY_FILE": path}))
+	require.NoError(t, err)
+	assert.Len(t, cfg.JWTPrivateKey, 64)
+}
+
+func TestLoad_TrustProxyHeaders_Parsed(t *testing.T) {
+	cfg, err := Load(env(map[string]string{"DATABASE_URL": "postgres://x", "JWT_PRIVATE_KEY": testJWTKey, "TRUST_PROXY_HEADERS": "true"}))
+	require.NoError(t, err)
+	assert.True(t, cfg.TrustProxyHeaders)
+
+	_, err = Load(env(map[string]string{"DATABASE_URL": "postgres://x", "JWT_PRIVATE_KEY": testJWTKey, "TRUST_PROXY_HEADERS": "quizas"}))
+	assert.ErrorContains(t, err, "TRUST_PROXY_HEADERS")
+}
+
 func TestLoad_Defaults_Valid(t *testing.T) {
-	cfg, err := Load(env(map[string]string{"DATABASE_URL": "postgres://x"}))
+	cfg, err := Load(env(map[string]string{"DATABASE_URL": "postgres://x", "JWT_PRIVATE_KEY": testJWTKey}))
 	require.NoError(t, err)
 	assert.Equal(t, "dev", cfg.Env)
 	assert.Equal(t, ":8080", cfg.HTTPAddr)
@@ -39,7 +70,7 @@ func TestLoad_SecretFromFile_TrimsValue(t *testing.T) {
 	path := filepath.Join(t.TempDir(), "db")
 	require.NoError(t, os.WriteFile(path, []byte("postgres://file\n"), 0o600))
 
-	cfg, err := Load(env(map[string]string{"DATABASE_URL_FILE": path}))
+	cfg, err := Load(env(map[string]string{"DATABASE_URL_FILE": path, "JWT_PRIVATE_KEY": testJWTKey}))
 	require.NoError(t, err)
 	assert.Equal(t, "postgres://file", cfg.DatabaseURL)
 }
