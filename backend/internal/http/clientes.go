@@ -32,6 +32,7 @@ type ClienteService interface {
 	Update(ctx context.Context, actor, id uuid.UUID, patch domain.ClientePatch) (domain.Cliente, error)
 	Recharge(ctx context.Context, actor, id uuid.UUID, input domain.TiqueteraInput) (domain.Tiquetera, error)
 	RegenerateQR(ctx context.Context, actor, id uuid.UUID) (string, error)
+	ListConsumos(ctx context.Context, id uuid.UUID, page, size int32) ([]domain.ConsumoEntry, int64, error)
 }
 
 type createClienteRequest struct {
@@ -128,6 +129,22 @@ type qrResponse struct {
 
 type clientePage struct {
 	Items []clienteDTO `json:"items"`
+	Page  int32        `json:"page"`
+	Size  int32        `json:"size"`
+	Total int64        `json:"total"`
+}
+
+type consumoDTO struct {
+	ID              uuid.UUID `json:"id"`
+	TiqueteraID     uuid.UUID `json:"tiquetera_id"`
+	ClienteID       uuid.UUID `json:"cliente_id"`
+	CajeroID        uuid.UUID `json:"cajero_id"`
+	FechaHora       time.Time `json:"fecha_hora"`
+	SaldoResultante int32     `json:"saldo_resultante"`
+}
+
+type consumoPage struct {
+	Items []consumoDTO `json:"items"`
 	Page  int32        `json:"page"`
 	Size  int32        `json:"size"`
 	Total int64        `json:"total"`
@@ -265,6 +282,38 @@ func (h *clientesHandler) regenerateQR(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	writeJSON(w, http.StatusOK, qrResponse{QRPayload: payload})
+}
+
+func (h *clientesHandler) listConsumos(w http.ResponseWriter, r *http.Request) {
+	id, ok := clienteID(w, r)
+	if !ok {
+		return
+	}
+	page, size, ok := parsePagination(w, r)
+	if !ok {
+		return
+	}
+	consumos, total, err := h.svc.ListConsumos(r.Context(), id, page, size)
+	if err != nil {
+		writeError(h.log, w, r, err)
+		return
+	}
+	items := make([]consumoDTO, 0, len(consumos))
+	for _, c := range consumos {
+		items = append(items, consumoDTO(c))
+	}
+	writeJSON(w, http.StatusOK, consumoPage{Items: items, Page: page, Size: size, Total: total})
+}
+
+func parsePagination(w http.ResponseWriter, r *http.Request) (page, size int32, ok bool) {
+	query := r.URL.Query()
+	page, okPage := parseBoundedInt(query.Get("page"), 1, maxPage)
+	size, okSize := parseBoundedInt(query.Get("size"), defaultPageSize, maxPageSize)
+	if !okPage || !okSize {
+		writeInvalidRequest(w)
+		return 0, 0, false
+	}
+	return page, size, true
 }
 
 func actorFrom(w http.ResponseWriter, r *http.Request) (uuid.UUID, bool) {

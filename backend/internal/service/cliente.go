@@ -24,6 +24,7 @@ type ClienteRepository interface {
 	GetActiveTiquetera(ctx context.Context, clienteID uuid.UUID) (domain.Tiquetera, error)
 	DeactivateTiquetera(ctx context.Context, clienteID uuid.UUID) (int32, error)
 	CreateTiquetera(ctx context.Context, t domain.Tiquetera, actor uuid.UUID) (domain.Tiquetera, error)
+	ListConsumos(ctx context.Context, clienteID uuid.UUID, limit, offset int32) ([]domain.ConsumoEntry, int64, error)
 	AddAudit(ctx context.Context, entry domain.AuditEntry) error
 }
 
@@ -106,6 +107,18 @@ func (s *ClienteService) List(ctx context.Context, q string, page, size int32) (
 	return items, total, nil
 }
 
+// ListConsumos returns a page of the client's history, newest first. Page starts at 1.
+func (s *ClienteService) ListConsumos(ctx context.Context, id uuid.UUID, page, size int32) ([]domain.ConsumoEntry, int64, error) {
+	if _, err := s.repo.GetCliente(ctx, id); err != nil {
+		return nil, 0, fmt.Errorf("getting client: %w", err)
+	}
+	items, total, err := s.repo.ListConsumos(ctx, id, size, (page-1)*size)
+	if err != nil {
+		return nil, 0, fmt.Errorf("listing consumptions: %w", err)
+	}
+	return items, total, nil
+}
+
 // Update applies a partial update to a client.
 func (s *ClienteService) Update(ctx context.Context, actor, id uuid.UUID, patch domain.ClientePatch) (domain.Cliente, error) {
 	var updated domain.Cliente
@@ -182,7 +195,7 @@ func (s *ClienteService) RegenerateQR(ctx context.Context, actor, id uuid.UUID) 
 }
 
 func createTiquetera(ctx context.Context, tx ClienteRepository, clienteID uuid.UUID, almuerzos int, fecha time.Time, actor uuid.UUID) (domain.Tiquetera, error) {
-	count := int32(almuerzos) //nolint:gosec // validated range 1..500
+	count := int32(almuerzos) // #nosec G115 -- validated range 1..500
 	return tx.CreateTiquetera(ctx, domain.Tiquetera{
 		ClienteID:          clienteID,
 		AlmuerzosComprados: count,

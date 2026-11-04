@@ -91,7 +91,7 @@ func loadJWTKey(getenv Getenv) (ed25519.PrivateKey, error) {
 // Secret reads NAME_FILE when set, otherwise NAME.
 func Secret(getenv Getenv, name string) (string, error) {
 	if path := getenv(name + "_FILE"); path != "" {
-		b, err := os.ReadFile(path) //nolint:gosec // path comes from operator-controlled env
+		b, err := os.ReadFile(path) // #nosec G304 -- path comes from operator-controlled env
 		if err != nil {
 			return "", fmt.Errorf("reading %s_FILE: %w", name, err)
 		}

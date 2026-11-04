@@ -73,6 +73,11 @@ func (f *fakeClientes) RegenerateQR(context.Context, uuid.UUID, uuid.UUID) (stri
 	return testQRPayload, f.err
 }
 
+func (f *fakeClientes) ListConsumos(_ context.Context, _ uuid.UUID, page, size int32) ([]domain.ConsumoEntry, int64, error) {
+	f.page, f.size = page, size
+	return []domain.ConsumoEntry{{ID: uuid.New(), SaldoResultante: 4}}, 1, f.err
+}
+
 type clientesEnv struct {
 	router http.Handler
 	svc    *fakeClientes

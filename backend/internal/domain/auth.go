@@ -38,6 +38,7 @@ var (
 // User is an application account.
 type User struct {
 	ID           uuid.UUID
+	Username     string
 	Nombre       string
 	PasswordHash string
 	Rol          Role

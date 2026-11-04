@@ -22,9 +22,11 @@ const maxConcurrentHashes = 2
 type AuthRepository interface {
 	InTx(ctx context.Context, fn func(AuthRepository) error) error
 	GetUserByUsername(ctx context.Context, username string) (domain.User, error)
+	GetUserByID(ctx context.Context, id uuid.UUID) (domain.User, error)
 	GetUserByIDForUpdate(ctx context.Context, id uuid.UUID) (domain.User, error)
 	UpdateLoginState(ctx context.Context, user domain.User) error
 	CreateRefreshToken(ctx context.Context, token domain.RefreshToken) error
+	GetRefreshTokenOwner(ctx context.Context, hash []byte) (uuid.UUID, error)
 	GetRefreshTokenForUpdate(ctx context.Context, hash []byte) (domain.RefreshToken, error)
 	RevokeRefreshToken(ctx context.Context, id uuid.UUID, at time.Time) error
 	RevokeRefreshFamily(ctx context.Context, familyID uuid.UUID, at time.Time) (int64, error)
@@ -175,14 +177,26 @@ func (s *AuthService) Refresh(ctx context.Context, raw string) (domain.Session, 
 	return result.session, result.failure
 }
 
+// rotate locks the user before the token, the same order UsuarioService uses to
+// close sessions, so a refresh and a password reset cannot deadlock and a
+// refresh waiting on the user sees the token already revoked.
 func (s *AuthService) rotate(ctx context.Context, tx AuthRepository, raw string) (txResult, error) {
 	now := s.clock.Now()
 	rejected := txResult{failure: domain.ErrInvalidRefreshToken}
+	hash := auth.HashRefreshToken(raw)
 
-	token, err := tx.GetRefreshTokenForUpdate(ctx, auth.HashRefreshToken(raw))
+	owner, err := tx.GetRefreshTokenOwner(ctx, hash)
 	if errors.Is(err, domain.ErrNotFound) {
 		return rejected, nil
 	}
+	if err != nil {
+		return txResult{}, fmt.Errorf("getting refresh token owner: %w", err)
+	}
+	user, err := tx.GetUserByIDForUpdate(ctx, owner)
+	if err != nil {
+		return txResult{}, fmt.Errorf("locking user: %w", err)
+	}
+	token, err := tx.GetRefreshTokenForUpdate(ctx, hash)
 	if err != nil {
 		return txResult{}, fmt.Errorf("getting refresh token: %w", err)
 	}
@@ -191,11 +205,6 @@ func (s *AuthService) rotate(ctx context.Context, tx AuthRepository, raw string)
 	}
 	if !token.ExpiresAt.After(now) {
 		return rejected, nil
-	}
-
-	user, err := tx.GetUserByIDForUpdate(ctx, token.UsuarioID)
-	if err != nil {
-		return txResult{}, fmt.Errorf("locking user: %w", err)
 	}
 	if !user.Activo {
 		if _, err := tx.RevokeRefreshFamily(ctx, token.FamilyID, now); err != nil {
@@ -225,6 +234,23 @@ func revokeReusedFamily(ctx context.Context, tx AuthRepository, token domain.Ref
 		return nil
 	}
 	return audit(ctx, tx, token.UsuarioID, domain.AuditRefreshReused)
+}
+
+// CurrentPrincipal returns the identity as stored now, so deactivating a user or
+// changing their role applies to access tokens already issued. A missing or
+// inactive user returns ErrInvalidAccessToken.
+func (s *AuthService) CurrentPrincipal(ctx context.Context, p domain.Principal) (domain.Principal, error) {
+	user, err := s.repo.GetUserByID(ctx, p.UserID)
+	if errors.Is(err, domain.ErrNotFound) {
+		return domain.Principal{}, domain.ErrInvalidAccessToken
+	}
+	if err != nil {
+		return domain.Principal{}, fmt.Errorf("getting current user: %w", err)
+	}
+	if !user.Activo {
+		return domain.Principal{}, domain.ErrInvalidAccessToken
+	}
+	return domain.Principal{UserID: user.ID, Rol: user.Rol}, nil
 }
 
 // Logout revokes the family of a refresh token owned by the principal. Unknown

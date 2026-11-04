@@ -3,7 +3,7 @@
 Regla: entradas breves (≤ 8 líneas por sesión). Lo más reciente arriba. Solo hechos útiles para el siguiente agente.
 
 ## Estado actual
-- **Siguiente sesión:** S07
+- **Siguiente sesión:** S08
 - **Bloqueos:** ninguno
 
 ## Historial
@@ -14,6 +14,15 @@ Regla: entradas breves (≤ 8 líneas por sesión). Lo más reciente arriba. Sol
 - Pendiente/deuda:
 - Comandos de verificación:
 -->
+
+### S07 — Usuarios, historial y endurecimiento — 2026-11-04 — ✅
+- Hecho: CRUD `/usuarios`, `GET /clientes/{id}/consumos`, `gosec` v2.30.0 en CI. Desactivar, cambiar rol o resetear contraseña revoca refresh tokens; `ULTIMO_ADMIN` protege con bloqueo al último admin activo.
+- Decisiones: `Refresh` bloquea usuario y luego token (evita deadlock con revocación). Username `A-Za-z0-9._-`. `#nosec` con motivo en 4 falsos positivos de gosec.
+- Checklist OK: A01/API1/API5, A03, A04, A07, A09, A10, API4 (body 64 KB, size ≤ 50, pool acotado); argon2id y EdDSA de A02; A05 y A06 en backend/imagen (distroless, nonroot, read_only, errores RFC7807, govulncheck, gosec, trivy, Dependabot).
+- Checklist pendiente S15: TLS/HSTS, Caddyfile, compose prod, CORS/cabeceras en proxy, `cpus`, firma de imágenes (A08). Móvil MASVS: S08+.
+- ADR-006b: cada request valida `activo` y toma el rol de la BD; desactivar o degradar aplica de inmediato. Resetear contraseña no invalida el access token vigente (máx. 15 min).
+- Deuda: `WriteTimeout` 15 s vs regla 10 s (margen sobre timeout de handler 10 s). GO-2026-5932 en `x/crypto/openpgp`: no se importa ni se llama; sin versión estable con fix. Rate limit en memoria. `make` no está en este host: comandos ejecutados con `docker run`.
+- Verificación: tests verdes; cobertura domain 98.4%, service 93.4%; lint 0; gosec 0 (exit 0); govulncheck 0 llamadas; trivy 0 CRITICAL/HIGH. `-race` en tests nuevos. EXPLAIN historial: usa `consumos_cliente_fecha_idx`, 0.3 ms con 40k filas. E2E en Compose aislado OK, 0 secretos en logs.
 
 ### S06 — Consumo — 2026-11-04 — ✅
 - Hecho: `POST /consumos` (`ConsumoService`, `ConsumoRepository`), UPDATE condicional atómico, diagnóstico y registro de rechazos, idempotencia con repetición de la respuesta original, rate limit 60/min por usuario.

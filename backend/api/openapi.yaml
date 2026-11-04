@@ -212,7 +212,7 @@ paths:
           content:
             application/json:
               schema: { $ref: '#/components/schemas/ConsumoPage' }
-        '501': { $ref: '#/components/responses/Problem' }
+        '400': { $ref: '#/components/responses/Problem' }
         '401': { $ref: '#/components/responses/Problem' }
         '403': { $ref: '#/components/responses/Problem' }
         '404': { $ref: '#/components/responses/Problem' }
@@ -268,6 +268,7 @@ paths:
         '401': { $ref: '#/components/responses/Problem' }
         '403': { $ref: '#/components/responses/Problem' }
         '409': { $ref: '#/components/responses/Problem' }
+        '422': { $ref: '#/components/responses/Problem' }
     get:
       tags: [usuarios]
       operationId: listUsuarios
@@ -281,6 +282,7 @@ paths:
           content:
             application/json:
               schema: { $ref: '#/components/schemas/UsuarioPage' }
+        '400': { $ref: '#/components/responses/Problem' }
         '401': { $ref: '#/components/responses/Problem' }
         '403': { $ref: '#/components/responses/Problem' }
   /usuarios/{id}:
@@ -303,6 +305,7 @@ paths:
       tags: [usuarios]
       operationId: updateUsuario
       summary: Actualiza o desactiva un usuario
+      description: Desactivar o cambiar de rol revoca sus refresh tokens. Debe quedar un admin activo (422 ULTIMO_ADMIN).
       requestBody:
         required: true
         content:
@@ -318,6 +321,7 @@ paths:
         '401': { $ref: '#/components/responses/Problem' }
         '403': { $ref: '#/components/responses/Problem' }
         '404': { $ref: '#/components/responses/Problem' }
+        '422': { $ref: '#/components/responses/Problem' }
   /usuarios/{id}/password:
     parameters:
       - { $ref: '#/components/parameters/Id' }
@@ -325,6 +329,7 @@ paths:
       tags: [usuarios]
       operationId: resetUsuarioPassword
       summary: Restablece la contraseña
+      description: Limpia el bloqueo y revoca los refresh tokens del usuario.
       requestBody:
         required: true
         content:
@@ -340,6 +345,7 @@ paths:
         '401': { $ref: '#/components/responses/Problem' }
         '403': { $ref: '#/components/responses/Problem' }
         '404': { $ref: '#/components/responses/Problem' }
+        '422': { $ref: '#/components/responses/Problem' }
   /reportes/consumos:
     get:
       tags: [reportes]
@@ -572,7 +578,7 @@ components:
       type: object
       required: [username, password, nombre, rol]
       properties:
-        username: { type: string, minLength: 3, maxLength: 50 }
+        username: { type: string, pattern: '^[A-Za-z0-9._-]{3,50}$' }
         password: { type: string, minLength: 10, maxLength: 128 }
         nombre: { type: string, minLength: 2, maxLength: 120 }
         rol: { $ref: '#/components/schemas/Rol' }

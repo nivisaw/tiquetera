@@ -52,6 +52,15 @@ func (r *AuthRepository) GetUserByUsername(ctx context.Context, username string)
 	return toUser(row), nil
 }
 
+// GetUserByID returns a user or domain.ErrNotFound.
+func (r *AuthRepository) GetUserByID(ctx context.Context, id uuid.UUID) (domain.User, error) {
+	row, err := r.q.GetUsuarioByID(ctx, id)
+	if err != nil {
+		return domain.User{}, mapNotFound(err)
+	}
+	return toUser(row), nil
+}
+
 // GetUserByIDForUpdate locks and returns a user or domain.ErrNotFound.
 func (r *AuthRepository) GetUserByIDForUpdate(ctx context.Context, id uuid.UUID) (domain.User, error) {
 	row, err := r.q.GetUsuarioByIDForUpdate(ctx, id)
@@ -86,6 +95,15 @@ func (r *AuthRepository) CreateRefreshToken(ctx context.Context, token domain.Re
 		return fmt.Errorf("creating refresh token: %w", err)
 	}
 	return nil
+}
+
+// GetRefreshTokenOwner returns the token's user, without locking, or domain.ErrNotFound.
+func (r *AuthRepository) GetRefreshTokenOwner(ctx context.Context, hash []byte) (uuid.UUID, error) {
+	id, err := r.q.GetRefreshTokenOwner(ctx, hash)
+	if err != nil {
+		return uuid.Nil, mapNotFound(err)
+	}
+	return id, nil
 }
 
 // GetRefreshTokenForUpdate locks and returns a token or domain.ErrNotFound.
@@ -144,6 +162,7 @@ func addAudit(ctx context.Context, q *sqlcgen.Queries, entry domain.AuditEntry) 
 func toUser(row sqlcgen.Usuario) domain.User {
 	return domain.User{
 		ID:           row.ID,
+		Username:     row.Username,
 		Nombre:       row.Nombre,
 		PasswordHash: row.PasswordHash,
 		Rol:          domain.Role(row.Rol),

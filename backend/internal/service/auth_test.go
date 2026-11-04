@@ -47,6 +47,33 @@ func (r *fakeRepo) GetUserByUsername(_ context.Context, username string) (domain
 	return r.user, nil
 }
 
+func (r *fakeRepo) GetUserByID(context.Context, uuid.UUID) (domain.User, error) {
+	return r.user, r.failGet
+}
+
+func TestCurrentPrincipal_ReflectsStoredUser(t *testing.T) {
+	id := uuid.New()
+	stale := domain.Principal{UserID: id, Rol: domain.RoleAdmin}
+	build := func(r *fakeRepo) *AuthService {
+		svc, err := NewAuthService(r, nil, platform.SystemClock{})
+		require.NoError(t, err)
+		return svc
+	}
+
+	got, err := build(&fakeRepo{user: domain.User{ID: id, Rol: domain.RoleCajero, Activo: true}}).CurrentPrincipal(t.Context(), stale)
+	require.NoError(t, err)
+	assert.Equal(t, domain.RoleCajero, got.Rol, "role comes from the database")
+
+	_, err = build(&fakeRepo{user: domain.User{ID: id, Activo: false}}).CurrentPrincipal(t.Context(), stale)
+	require.ErrorIs(t, err, domain.ErrInvalidAccessToken)
+	_, err = build(&fakeRepo{failGet: domain.ErrNotFound}).CurrentPrincipal(t.Context(), stale)
+	require.ErrorIs(t, err, domain.ErrInvalidAccessToken)
+
+	down := errors.New("db down")
+	_, err = build(&fakeRepo{failGet: down}).CurrentPrincipal(t.Context(), stale)
+	require.ErrorIs(t, err, down)
+}
+
 func (r *fakeRepo) GetUserByIDForUpdate(context.Context, uuid.UUID) (domain.User, error) {
 	return r.user, nil
 }
@@ -60,6 +87,15 @@ func (r *fakeRepo) CreateRefreshToken(_ context.Context, t domain.RefreshToken) 
 	t.ID = uuid.New()
 	r.tokens = append(r.tokens, &t)
 	return nil
+}
+
+func (r *fakeRepo) GetRefreshTokenOwner(_ context.Context, hash []byte) (uuid.UUID, error) {
+	for _, t := range r.tokens {
+		if bytes.Equal(t.TokenHash, hash) {
+			return t.UsuarioID, nil
+		}
+	}
+	return uuid.Nil, domain.ErrNotFound
 }
 
 func (r *fakeRepo) GetRefreshTokenForUpdate(_ context.Context, hash []byte) (domain.RefreshToken, error) {

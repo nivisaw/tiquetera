@@ -33,6 +33,7 @@ type AuthService interface {
 	Login(ctx context.Context, username, password string) (domain.Session, error)
 	Refresh(ctx context.Context, rawToken string) (domain.Session, error)
 	Logout(ctx context.Context, p domain.Principal, rawToken string) error
+	CurrentPrincipal(ctx context.Context, p domain.Principal) (domain.Principal, error)
 }
 
 // TokenVerifier validates access tokens.
@@ -208,8 +209,9 @@ func writeUnauthenticated(w http.ResponseWriter) {
 	writeProblem(w, http.StatusUnauthorized, "UNAUTHENTICATED", "Autenticación requerida")
 }
 
-// authenticate requires a valid access token and stores its principal.
-func authenticate(tokens TokenVerifier) func(http.Handler) http.Handler {
+// authenticate requires a valid access token of an active user and stores the
+// user's current principal, whose role comes from the database, not the token.
+func authenticate(log *slog.Logger, tokens TokenVerifier, users AuthService) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			scheme, token, found := strings.Cut(r.Header.Get("Authorization"), " ")
@@ -220,6 +222,15 @@ func authenticate(tokens TokenVerifier) func(http.Handler) http.Handler {
 			principal, err := tokens.VerifyAccess(strings.TrimSpace(token))
 			if err != nil {
 				writeUnauthenticated(w)
+				return
+			}
+			principal, err = users.CurrentPrincipal(r.Context(), principal)
+			if errors.Is(err, domain.ErrInvalidAccessToken) {
+				writeUnauthenticated(w)
+				return
+			}
+			if err != nil {
+				writeError(log, w, r, err)
 				return
 			}
 			ctx := context.WithValue(r.Context(), principalKey{}, principal)

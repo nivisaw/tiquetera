@@ -31,7 +31,8 @@ Sin token válido: 401 `UNAUTHENTICATED`. Rol insuficiente: 403 `FORBIDDEN`. Ent
 Listados: `{items, page, size, total}` (`page` desde 1).
 Validaciones: teléfono E.164 (default país +57), almuerzos 1..500, fecha_vencimiento >= hoy (Bogotá).
 Errores: JSON mal formado, campo desconocido o null en campo obligatorio de PATCH 400 `INVALID_REQUEST`; valor inválido 422 `VALIDATION_ERROR`; teléfono repetido 409 `TELEFONO_DUPLICADO`; recarga a cliente inactivo 422 `CLIENTE_INACTIVO`; id inexistente o mal formado 404 `NOT_FOUND`.
-PATCH: campo ausente no cambia; `documento`/`email` en null se borran. La recarga suma el saldo anterior, aunque la tiquetera previa haya vencido: la nueva queda con `almuerzos_comprados` = `saldo` = recarga + saldo anterior; si supera 500, 422 `VALIDATION_ERROR` y no cambia nada. Historial `/consumos` responde 501 hasta S07.
+PATCH: campo ausente no cambia; `documento`/`email` en null se borran. La recarga suma el saldo anterior, aunque la tiquetera previa haya vencido: la nueva queda con `almuerzos_comprados` = `saldo` = recarga + saldo anterior; si supera 500, 422 `VALIDATION_ERROR` y no cambia nada.
+Historial: más reciente primero; `items[]` con `{id, tiquetera_id, cliente_id, cajero_id, fecha_hora, saldo_resultante}`.
 
 ## Consumos (cajero, admin)
 `POST /consumos` · Header `Idempotency-Key: <uuid>` (obligatorio) · Body `{ "qr": "TQ1.xxxxx" }`
@@ -46,7 +47,17 @@ QR mal formado: `QR_INVALIDO`. QR bien formado desconocido o reemplazado al rege
 Rate limit: 60/min por cajero.
 
 ## Usuarios (admin)
-CRUD básico `/usuarios` (crear cajero, desactivar vía `PATCH /usuarios/{id}`, reset con `PUT /usuarios/{id}/password`).
+| Método | Ruta | Notas |
+|---|---|---|
+| POST | /usuarios | `{username, password, nombre, rol}` → `201 {id, username, nombre, rol, activo}` |
+| GET | /usuarios?page=&size= | paginado (size ≤ 50), orden por username |
+| GET | /usuarios/{id} | |
+| PATCH | /usuarios/{id} | `{nombre?, rol?, activo?}`; no se borran usuarios, se desactivan |
+| PUT | /usuarios/{id}/password | `{password}` → 204; limpia el bloqueo |
+
+Validaciones: username 3..50 (`A-Za-z0-9._-`, único sin distinguir mayúsculas), contraseña 10..128 caracteres, nombre 2..120, rol `admin`/`cajero`.
+Errores: JSON mal formado, campo desconocido, PATCH vacío o con null 400 `INVALID_REQUEST`; valor inválido 422 `VALIDATION_ERROR`; username repetido 409 `USERNAME_DUPLICADO`; desactivar o degradar al único admin activo 422 `ULTIMO_ADMIN`; id inexistente o mal formado 404 `NOT_FOUND`.
+Desactivar, cambiar de rol o restablecer la contraseña revoca los refresh tokens del usuario. Desactivar o cambiar de rol aplica de inmediato también a los access tokens ya emitidos (ADR-006b); restablecer la contraseña no invalida el access token vigente (máx. 15 min).
 
 ## Reportes (admin, fase 2)
 `GET /reportes/consumos?desde=&hasta=&cajero_id=`

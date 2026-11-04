@@ -74,6 +74,11 @@ func (f *fakeClienteRepo) GetActiveTiquetera(context.Context, uuid.UUID) (domain
 	return f.tiquetera, f.tiqueteraErr
 }
 
+func (f *fakeClienteRepo) ListConsumos(_ context.Context, _ uuid.UUID, limit, offset int32) ([]domain.ConsumoEntry, int64, error) {
+	f.limit, f.offset = limit, offset
+	return []domain.ConsumoEntry{{SaldoResultante: 4}}, 7, f.step("ListConsumos")
+}
+
 func (f *fakeClienteRepo) DeactivateTiquetera(context.Context, uuid.UUID) (int32, error) {
 	return f.previousSaldo, f.step("DeactivateTiquetera")
 }

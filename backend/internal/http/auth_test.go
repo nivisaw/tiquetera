@@ -33,6 +33,39 @@ type fakeAuth struct {
 	err        error
 	loginCalls int
 	logoutUser uuid.UUID
+	currentErr error
+	currentRol domain.Role
+}
+
+func (f *fakeAuth) CurrentPrincipal(_ context.Context, p domain.Principal) (domain.Principal, error) {
+	if f.currentRol != "" {
+		p.Rol = f.currentRol
+	}
+	return p, f.currentErr
+}
+
+func TestAuthenticate_UsesCurrentUserState(t *testing.T) {
+	cases := map[string]struct {
+		err    error
+		rol    domain.Role
+		status int
+	}{
+		"inactive user":    {err: domain.ErrInvalidAccessToken, status: http.StatusUnauthorized},
+		"database down":    {err: errors.New("db down"), status: http.StatusInternalServerError},
+		"demoted admin":    {rol: domain.RoleCajero, status: http.StatusForbidden},
+		"still authorized": {status: http.StatusNotFound},
+	}
+	for name, tc := range cases {
+		t.Run(name, func(t *testing.T) {
+			e := newAuthEnv(t, false)
+			e.svc.currentErr, e.svc.currentRol = tc.err, tc.rol
+			req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/v1/clientes/no-es-uuid/consumos", nil)
+			req.Header.Set("Authorization", "Bearer "+e.bearer(t, domain.RoleAdmin))
+			rec := httptest.NewRecorder()
+			e.router.ServeHTTP(rec, req)
+			assert.Equal(t, tc.status, rec.Code)
+		})
+	}
 }
 
 func (f *fakeAuth) Login(context.Context, string, string) (domain.Session, error) {
@@ -226,7 +259,7 @@ func TestLogoutHandler_RequiresAuthAndUsesTokenIdentity(t *testing.T) {
 func TestClientes_Authorization(t *testing.T) {
 	e := newAuthEnv(t, false)
 	request := func(authz string) *httptest.ResponseRecorder {
-		req := httptest.NewRequestWithContext(context.Background(), http.MethodGet, "/v1/clientes/"+uuid.NewString()+"/consumos", nil)
+		req := httptest.NewRequestWithContext(context.Background(), http.MethodGet, "/v1/clientes/no-es-uuid/consumos", nil)
 		if authz != "" {
 			req.Header.Set("Authorization", authz)
 		}
@@ -243,7 +276,7 @@ func TestClientes_Authorization(t *testing.T) {
 	assert.Equal(t, http.StatusForbidden, cajero.Code)
 	assert.Contains(t, cajero.Body.String(), "FORBIDDEN")
 
-	assert.Equal(t, http.StatusNotImplemented, request("Bearer "+e.bearer(t, domain.RoleAdmin)).Code)
+	assert.Equal(t, http.StatusNotFound, request("Bearer "+e.bearer(t, domain.RoleAdmin)).Code, "admin passes authorization")
 
 	expired := e.bearer(t, domain.RoleAdmin)
 	e.clock.t = e.clock.t.Add(auth.AccessTokenTTL)
