@@ -3,7 +3,7 @@
 Regla: entradas breves (≤ 8 líneas por sesión). Lo más reciente arriba. Solo hechos útiles para el siguiente agente.
 
 ## Estado actual
-- **Siguiente sesión:** S04
+- **Siguiente sesión:** S05
 - **Bloqueos:** ninguno
 
 ## Historial
@@ -14,6 +14,12 @@ Regla: entradas breves (≤ 8 líneas por sesión). Lo más reciente arriba. Sol
 - Pendiente/deuda:
 - Comandos de verificación:
 -->
+
+### S04 — Autenticación y RBAC — 2026-11-04 — ✅
+- Hecho: login/refresh/logout, `VerifyPassword`, JWT EdDSA (`internal/auth`), `AuthService` + repo con `WithTx`, bloqueo 5 fallos/15 min, rate limit 5/min IP+usuario, `authenticate` + `RequireRole`, audit_log de login/reuso/logout, `platform.Clock`, `http/errors.go`.
+- Decisiones: `JWT_PRIVATE_KEY[_FILE]` = semilla Ed25519 base64 (`openssl rand -base64 32`), obligatoria. Inactivo/bloqueado/credencial mala: mismo 401 y siempre verifica hash (no revela estado). Máx. 2 verificaciones argon2 concurrentes (`mem_limit` 256m). Reuso solo audita si quedaban tokens activos (no alerta tras logout). `TRUST_PROXY_HEADERS` (default false) usa la última entrada de X-Forwarded-For. Deps: jwt v5.3.1, httprate v0.16.1 (aprobadas); indirectas xxh3 v1.0.2, cpuid v2.2.10.
+- Pendiente: S05 reemplaza el placeholder 501 de `/v1/clientes` (ya protegido admin). S07: al desactivar usuario el access sigue válido hasta 15 min; el refresh ya se rechaza. Deploy prod: `TRUST_PROXY_HEADERS=true` tras Caddy. Rate limit en memoria: revisar si se escala a varias instancias. GO-2026-5932 sigue sin llamadas.
+- Verificación: lint 0 issues; tests verdes; `-race` (imagen `golang:1.27.3`, no alpine) en http/service/postgres; cobertura domain 100%, service 82.9%; E2E en Compose aislado (login, 401/501, rotación, reuso revoca familia, logout, audit, 0 fugas en logs). `make` no existe en host: comandos equivalentes en Docker. El 429 y el 403 de cajero se probaron solo en tests HTTP.
 
 ### S03 — Migraciones, sqlc y OpenAPI — 2026-11-03 — ✅
 - Hecho: migraciones 0001-0005 (7 tablas), rol `tiquetera_app` sin DELETE (la API ya no usa owner), sqlc en `internal/repository/postgres/sqlcgen`, queries base, `api/openapi.yaml`, `cmd/seed` idempotente, `platform.HashPassword`, targets `migrate`, `migrate-down`, `sqlc`, `seed`.

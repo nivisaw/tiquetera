@@ -8,14 +8,20 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+
+	"tiquetera/internal/domain"
 )
 
 const handlerTimeout = 10 * time.Second
 
 // Deps groups what the router needs from the outside world.
 type Deps struct {
-	Log *slog.Logger
-	DB  Pinger
+	Log    *slog.Logger
+	DB     Pinger
+	Auth   AuthService
+	Tokens TokenVerifier
+	// TrustProxyHeaders enables X-Forwarded-For; set it only behind a proxy.
+	TrustProxyHeaders bool
 }
 
 // NewRouter builds the API router with the standard middleware chain.
@@ -40,9 +46,32 @@ func NewRouter(d Deps) http.Handler {
 	r.Get("/healthz", healthz)
 	r.Get("/readyz", readyz(d.DB))
 
-	r.Route("/v1", func(_ chi.Router) {})
+	r.Route("/v1", func(v1 chi.Router) {
+		auth := newAuthHandler(d)
+		v1.Post("/auth/login", auth.login)
+		v1.Post("/auth/refresh", auth.refresh)
+
+		v1.Group(func(private chi.Router) {
+			private.Use(authenticate(d.Tokens))
+			private.Post("/auth/logout", auth.logout)
+
+			private.Group(func(admin chi.Router) {
+				admin.Use(RequireRole(domain.RoleAdmin))
+				admin.Handle("/clientes", notImplemented())
+				admin.Handle("/clientes/*", notImplemented())
+			})
+		})
+	})
 
 	return r
+}
+
+// notImplemented holds a route whose access rules are already enforced until
+// its use case exists.
+func notImplemented() http.HandlerFunc {
+	return func(w http.ResponseWriter, _ *http.Request) {
+		writeProblem(w, http.StatusNotImplemented, "NOT_IMPLEMENTED", "Funcionalidad no disponible")
+	}
 }
 
 // NewServer returns an http.Server with hardened timeouts.
