@@ -3,7 +3,7 @@
 Regla: entradas breves (≤ 8 líneas por sesión). Lo más reciente arriba. Solo hechos útiles para el siguiente agente.
 
 ## Estado actual
-- **Siguiente sesión:** S06
+- **Siguiente sesión:** S07
 - **Bloqueos:** ninguno
 
 ## Historial
@@ -14,6 +14,12 @@ Regla: entradas breves (≤ 8 líneas por sesión). Lo más reciente arriba. Sol
 - Pendiente/deuda:
 - Comandos de verificación:
 -->
+
+### S06 — Consumo — 2026-11-04 — ✅
+- Hecho: `POST /consumos` (`ConsumoService`, `ConsumoRepository`), UPDATE condicional atómico, diagnóstico y registro de rechazos, idempotencia con repetición de la respuesta original, rate limit 60/min por usuario.
+- Decisiones: los rechazos no guardan la clave y se reevalúan al reintentar. Clave de otro usuario: 409 `IDEMPOTENCY_KEY_CONFLICT`. QR reemplazado: `CLIENTE_NO_EXISTE`. Hasta 3 intentos si una recarga cambia la tiquetera durante el débito. `GetClienteByIDForUpdate` pasa a `FOR NO KEY UPDATE` para evitar deadlock con el FK de `consumos`.
+- Pendiente: rate limit en memoria (igual que login): revisar si se escala a varias instancias. Sin cambios en el 501 de historial (S07).
+- Verificación: lint 0 issues; tests verdes; cobertura domain 97.8%, service 92.0%; `-race` en http/service/domain y en `TestConsumo_*`. En BD real: 20 goroutines sobre saldo 5 (5 éxitos, saldo 0), borde Bogotá, misma clave concurrente, recarga concurrente sin deadlock. p95 14 ms con `-race` en Docker local (se reporta, no se asevera). E2E en Compose aislado: débito, repetición, SIN_SALDO, QR_INVALIDO, 400 sin clave, 0 tokens en logs. El 429 solo se probó en tests HTTP.
 
 ### S05 — Clientes, tiqueteras y QR — 2026-11-04 — ✅
 - Hecho: `ClienteService` + `ClienteRepository` (crear en transacción, listar/buscar, detalle, PATCH, recarga, regenerar QR), `domain/cliente.go` (validaciones, `TodayInBogota`, `NewQRToken`, `HashQRToken`), audit_log, rutas admin.

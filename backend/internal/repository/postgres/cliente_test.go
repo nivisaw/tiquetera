@@ -22,7 +22,9 @@ const (
 type clienteFixture struct {
 	fixture
 
-	svc *service.ClienteService
+	svc   *service.ClienteService
+	pool  *pgxpool.Pool
+	clock *movableClock
 }
 
 func newClienteFixture(t *testing.T) clienteFixture {
@@ -32,7 +34,7 @@ func newClienteFixture(t *testing.T) clienteFixture {
 	require.NoError(t, err)
 	t.Cleanup(pool.Close)
 	clock := &movableClock{t: time.Date(2026, 11, 5, 3, 0, 0, 0, time.UTC)}
-	return clienteFixture{fixture: f, svc: service.NewClienteService(NewClienteRepository(pool), clock)}
+	return clienteFixture{fixture: f, svc: service.NewClienteService(NewClienteRepository(pool), clock), pool: pool, clock: clock}
 }
 
 func (f clienteFixture) create(t *testing.T, phone string) service.ClienteCreated {

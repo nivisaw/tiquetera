@@ -61,6 +61,39 @@ func (q *Queries) DeactivateActiveTiquetera(ctx context.Context, clienteID uuid.
 	return saldo, err
 }
 
+const debitTiquetera = `-- name: DebitTiquetera :one
+UPDATE tiqueteras t
+SET saldo = t.saldo - 1
+WHERE t.cliente_id = $1
+  AND t.activa
+  AND t.saldo > 0
+  AND t.fecha_vencimiento >= $2::date
+  AND EXISTS (SELECT 1 FROM clientes c WHERE c.id = t.cliente_id AND c.activo)
+RETURNING t.id, t.cliente_id, t.almuerzos_comprados, t.saldo, t.fecha_vencimiento, t.activa, t.created_by, t.created_at, t.updated_at
+`
+
+type DebitTiqueteraParams struct {
+	ClienteID uuid.UUID
+	Hoy       time.Time
+}
+
+func (q *Queries) DebitTiquetera(ctx context.Context, arg DebitTiqueteraParams) (Tiquetera, error) {
+	row := q.db.QueryRow(ctx, debitTiquetera, arg.ClienteID, arg.Hoy)
+	var i Tiquetera
+	err := row.Scan(
+		&i.ID,
+		&i.ClienteID,
+		&i.AlmuerzosComprados,
+		&i.Saldo,
+		&i.FechaVencimiento,
+		&i.Activa,
+		&i.CreatedBy,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
 const getActiveTiqueteraByCliente = `-- name: GetActiveTiqueteraByCliente :one
 SELECT id, cliente_id, almuerzos_comprados, saldo, fecha_vencimiento, activa, created_by, created_at, updated_at FROM tiqueteras WHERE cliente_id = $1 AND activa
 `

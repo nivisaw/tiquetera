@@ -41,7 +41,8 @@ PATCH: campo ausente no cambia; `documento`/`email` en null se borran. La recarg
 { "ok": true, "cliente": {"nombre": "Ana P."}, "saldo_restante": 7, "fecha_vencimiento": "2026-12-31", "fecha_hora": "..." }
 ```
 `422` con `code`: `QR_INVALIDO` · `CLIENTE_NO_EXISTE` · `CLIENTE_INACTIVO` · `SIN_TIQUETERA` · `TIQUETERA_VENCIDA` · `SIN_SALDO`
-Repetir misma Idempotency-Key → misma respuesta original, sin nuevo débito.
+Repetir misma Idempotency-Key → misma respuesta original, sin nuevo débito. Un rechazo no debita ni guarda la clave: reintentar lo evalúa de nuevo. Clave usada por otro usuario: 409 `IDEMPOTENCY_KEY_CONFLICT`. Header ausente o inválido, o `qr` vacío o > 128 bytes: 400 `INVALID_REQUEST`.
+QR mal formado: `QR_INVALIDO`. QR bien formado desconocido o reemplazado al regenerar: `CLIENTE_NO_EXISTE`.
 Rate limit: 60/min por cajero.
 
 ## Usuarios (admin)
