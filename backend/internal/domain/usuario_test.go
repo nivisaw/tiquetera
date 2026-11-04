@@ -8,7 +8,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-const validPassword = "clave-segura-123"
+const validPassword = "clave-correcta-123"
 
 func validNewUser() NewUser {
 	return NewUser{Username: "  caja.1 ", Password: validPassword, Nombre: " Ana ", Rol: RoleCajero}

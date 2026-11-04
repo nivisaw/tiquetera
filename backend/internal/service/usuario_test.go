@@ -13,7 +13,7 @@ import (
 	"tiquetera/internal/platform"
 )
 
-const usuarioTestPassword = "clave-segura-123"
+const usuarioTestPassword = "clave-correcta-123"
 
 type fakeUsuarioRepo struct {
 	user         domain.User

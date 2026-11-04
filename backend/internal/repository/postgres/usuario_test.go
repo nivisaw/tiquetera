@@ -17,7 +17,7 @@ import (
 	"tiquetera/internal/service"
 )
 
-const usuarioTestPassword = "clave-segura-123"
+const usuarioTestPassword = "clave-correcta-123"
 
 type usuarioFixture struct {
 	clienteFixture
