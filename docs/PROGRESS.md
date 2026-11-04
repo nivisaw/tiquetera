@@ -3,7 +3,7 @@
 Regla: entradas breves (≤ 8 líneas por sesión). Lo más reciente arriba. Solo hechos útiles para el siguiente agente.
 
 ## Estado actual
-- **Siguiente sesión:** S05
+- **Siguiente sesión:** S06
 - **Bloqueos:** ninguno
 
 ## Historial
@@ -14,6 +14,13 @@ Regla: entradas breves (≤ 8 líneas por sesión). Lo más reciente arriba. Sol
 - Pendiente/deuda:
 - Comandos de verificación:
 -->
+
+### S05 — Clientes, tiqueteras y QR — 2026-11-04 — ✅
+- Hecho: `ClienteService` + `ClienteRepository` (crear en transacción, listar/buscar, detalle, PATCH, recarga, regenerar QR), `domain/cliente.go` (validaciones, `TodayInBogota`, `NewQRToken`, `HashQRToken`), audit_log, rutas admin.
+- Decisiones: hash = SHA-256 del texto base64url tras `TQ1.` (S06 debe usar `domain.HashQRToken`). Bogotá = offset fijo -5 (sin DST ni tzdata en distroless). Códigos nuevos 422 `VALIDATION_ERROR`, 409 `TELEFONO_DUPLICADO`, 422 `CLIENTE_INACTIVO`; id mal formado = 404. Regenerar QR se permite a cliente inactivo.
+- Negocio: la recarga suma el saldo anterior (incluso vencido); `almuerzos_comprados` de la nueva = recarga + saldo anterior, tope 500. S06: el débito debe filtrar `activa` para ordenarse con la recarga.
+- Pendiente: S07: `GET /clientes/{id}/consumos` sigue en 501. Búsqueda `%q%` hace seq scan: aceptable con pocos clientes; `pg_trgm` si crece.
+- Verificación: lint 0 issues; tests verdes; cobertura domain 97.4%, service 89.4%; `-race` en http/service/domain; E2E en Compose aislado (crear, duplicado, fecha vencida, buscar, PATCH null, recarga, regenerar, 0 tokens en logs, audit correcto).
 
 ### S04 — Autenticación y RBAC — 2026-11-04 — ✅
 - Hecho: login/refresh/logout, `VerifyPassword`, JWT EdDSA (`internal/auth`), `AuthService` + repo con `WithTx`, bloqueo 5 fallos/15 min, rate limit 5/min IP+usuario, `authenticate` + `RequireRole`, audit_log de login/reuso/logout, `platform.Clock`, `http/errors.go`.

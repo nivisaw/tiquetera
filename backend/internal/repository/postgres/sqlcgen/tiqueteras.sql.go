@@ -49,16 +49,16 @@ func (q *Queries) CreateTiquetera(ctx context.Context, arg CreateTiqueteraParams
 	return i, err
 }
 
-const deactivateActiveTiquetera = `-- name: DeactivateActiveTiquetera :execrows
+const deactivateActiveTiquetera = `-- name: DeactivateActiveTiquetera :one
 UPDATE tiqueteras SET activa = false WHERE cliente_id = $1 AND activa
+RETURNING saldo
 `
 
-func (q *Queries) DeactivateActiveTiquetera(ctx context.Context, clienteID uuid.UUID) (int64, error) {
-	result, err := q.db.Exec(ctx, deactivateActiveTiquetera, clienteID)
-	if err != nil {
-		return 0, err
-	}
-	return result.RowsAffected(), nil
+func (q *Queries) DeactivateActiveTiquetera(ctx context.Context, clienteID uuid.UUID) (int32, error) {
+	row := q.db.QueryRow(ctx, deactivateActiveTiquetera, clienteID)
+	var saldo int32
+	err := row.Scan(&saldo)
+	return saldo, err
 }
 
 const getActiveTiqueteraByCliente = `-- name: GetActiveTiqueteraByCliente :one

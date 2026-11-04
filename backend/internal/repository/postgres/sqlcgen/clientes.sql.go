@@ -11,6 +11,19 @@ import (
 	"github.com/google/uuid"
 )
 
+const countClientes = `-- name: CountClientes :one
+SELECT count(*) FROM clientes
+WHERE nombre ILIKE '%' || $1::text || '%'
+   OR telefono LIKE '%' || $1::text || '%'
+`
+
+func (q *Queries) CountClientes(ctx context.Context, q_ string) (int64, error) {
+	row := q.db.QueryRow(ctx, countClientes, q_)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
 const createCliente = `-- name: CreateCliente :one
 INSERT INTO clientes (nombre, telefono, documento, email, qr_token_hash, created_by)
 VALUES ($1, $2, $3, $4, $5, $6)
@@ -75,12 +88,66 @@ func (q *Queries) GetClienteByID(ctx context.Context, id uuid.UUID) (Cliente, er
 	return i, err
 }
 
+const getClienteByIDForUpdate = `-- name: GetClienteByIDForUpdate :one
+SELECT id, nombre, telefono, documento, email, qr_token_hash, qr_version, activo, created_by, created_at, updated_at FROM clientes WHERE id = $1 FOR UPDATE
+`
+
+func (q *Queries) GetClienteByIDForUpdate(ctx context.Context, id uuid.UUID) (Cliente, error) {
+	row := q.db.QueryRow(ctx, getClienteByIDForUpdate, id)
+	var i Cliente
+	err := row.Scan(
+		&i.ID,
+		&i.Nombre,
+		&i.Telefono,
+		&i.Documento,
+		&i.Email,
+		&i.QrTokenHash,
+		&i.QrVersion,
+		&i.Activo,
+		&i.CreatedBy,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
 const getClienteByQRHash = `-- name: GetClienteByQRHash :one
 SELECT id, nombre, telefono, documento, email, qr_token_hash, qr_version, activo, created_by, created_at, updated_at FROM clientes WHERE qr_token_hash = $1
 `
 
 func (q *Queries) GetClienteByQRHash(ctx context.Context, qrTokenHash []byte) (Cliente, error) {
 	row := q.db.QueryRow(ctx, getClienteByQRHash, qrTokenHash)
+	var i Cliente
+	err := row.Scan(
+		&i.ID,
+		&i.Nombre,
+		&i.Telefono,
+		&i.Documento,
+		&i.Email,
+		&i.QrTokenHash,
+		&i.QrVersion,
+		&i.Activo,
+		&i.CreatedBy,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const rotateClienteQR = `-- name: RotateClienteQR :one
+UPDATE clientes
+SET qr_token_hash = $2, qr_version = qr_version + 1
+WHERE id = $1
+RETURNING id, nombre, telefono, documento, email, qr_token_hash, qr_version, activo, created_by, created_at, updated_at
+`
+
+type RotateClienteQRParams struct {
+	ID          uuid.UUID
+	QrTokenHash []byte
+}
+
+func (q *Queries) RotateClienteQR(ctx context.Context, arg RotateClienteQRParams) (Cliente, error) {
+	row := q.db.QueryRow(ctx, rotateClienteQR, arg.ID, arg.QrTokenHash)
 	var i Cliente
 	err := row.Scan(
 		&i.ID,
@@ -142,4 +209,46 @@ func (q *Queries) SearchClientes(ctx context.Context, arg SearchClientesParams) 
 		return nil, err
 	}
 	return items, nil
+}
+
+const updateCliente = `-- name: UpdateCliente :one
+UPDATE clientes
+SET nombre = $2, telefono = $3, documento = $4, email = $5, activo = $6
+WHERE id = $1
+RETURNING id, nombre, telefono, documento, email, qr_token_hash, qr_version, activo, created_by, created_at, updated_at
+`
+
+type UpdateClienteParams struct {
+	ID        uuid.UUID
+	Nombre    string
+	Telefono  string
+	Documento *string
+	Email     *string
+	Activo    bool
+}
+
+func (q *Queries) UpdateCliente(ctx context.Context, arg UpdateClienteParams) (Cliente, error) {
+	row := q.db.QueryRow(ctx, updateCliente,
+		arg.ID,
+		arg.Nombre,
+		arg.Telefono,
+		arg.Documento,
+		arg.Email,
+		arg.Activo,
+	)
+	var i Cliente
+	err := row.Scan(
+		&i.ID,
+		&i.Nombre,
+		&i.Telefono,
+		&i.Documento,
+		&i.Email,
+		&i.QrTokenHash,
+		&i.QrVersion,
+		&i.Activo,
+		&i.CreatedBy,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
 }

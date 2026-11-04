@@ -124,7 +124,11 @@ func (r *AuthRepository) RevokeRefreshFamily(ctx context.Context, familyID uuid.
 
 // AddAudit inserts an audit_log row.
 func (r *AuthRepository) AddAudit(ctx context.Context, entry domain.AuditEntry) error {
-	err := r.q.CreateAuditLog(ctx, sqlcgen.CreateAuditLogParams{
+	return addAudit(ctx, r.q, entry)
+}
+
+func addAudit(ctx context.Context, q *sqlcgen.Queries, entry domain.AuditEntry) error {
+	err := q.CreateAuditLog(ctx, sqlcgen.CreateAuditLogParams{
 		UsuarioID: entry.UsuarioID,
 		Accion:    entry.Accion,
 		Entidad:   entry.Entidad,

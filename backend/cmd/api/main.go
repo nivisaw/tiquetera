@@ -61,6 +61,7 @@ func run() error {
 		DB:                pool,
 		Auth:              authSvc,
 		Tokens:            tokens,
+		Clientes:          service.NewClienteService(postgres.NewClienteRepository(pool), clock),
 		TrustProxyHeaders: cfg.TrustProxyHeaders,
 	}))
 

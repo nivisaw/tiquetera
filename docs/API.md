@@ -30,6 +30,8 @@ Sin token válido: 401 `UNAUTHENTICATED`. Rol insuficiente: 403 `FORBIDDEN`. Ent
 
 Listados: `{items, page, size, total}` (`page` desde 1).
 Validaciones: teléfono E.164 (default país +57), almuerzos 1..500, fecha_vencimiento >= hoy (Bogotá).
+Errores: JSON mal formado, campo desconocido o null en campo obligatorio de PATCH 400 `INVALID_REQUEST`; valor inválido 422 `VALIDATION_ERROR`; teléfono repetido 409 `TELEFONO_DUPLICADO`; recarga a cliente inactivo 422 `CLIENTE_INACTIVO`; id inexistente o mal formado 404 `NOT_FOUND`.
+PATCH: campo ausente no cambia; `documento`/`email` en null se borran. La recarga suma el saldo anterior, aunque la tiquetera previa haya vencido: la nueva queda con `almuerzos_comprados` = `saldo` = recarga + saldo anterior; si supera 500, 422 `VALIDATION_ERROR` y no cambia nada. Historial `/consumos` responde 501 hasta S07.
 
 ## Consumos (cajero, admin)
 `POST /consumos` · Header `Idempotency-Key: <uuid>` (obligatorio) · Body `{ "qr": "TQ1.xxxxx" }`

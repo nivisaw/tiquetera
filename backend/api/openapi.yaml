@@ -159,7 +159,7 @@ paths:
     post:
       tags: [clientes]
       operationId: createTiquetera
-      summary: Recarga; desactiva la tiquetera anterior
+      summary: Recarga; desactiva la tiquetera anterior y suma su saldo (total máximo 500)
       requestBody:
         required: true
         content:
@@ -212,6 +212,7 @@ paths:
           content:
             application/json:
               schema: { $ref: '#/components/schemas/ConsumoPage' }
+        '501': { $ref: '#/components/responses/Problem' }
         '401': { $ref: '#/components/responses/Problem' }
         '403': { $ref: '#/components/responses/Problem' }
         '404': { $ref: '#/components/responses/Problem' }
