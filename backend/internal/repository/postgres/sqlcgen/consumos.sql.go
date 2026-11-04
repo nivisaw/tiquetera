@@ -7,8 +7,10 @@ package sqlcgen
 
 import (
 	"context"
+	"time"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 const createAuditLog = `-- name: CreateAuditLog :exec
@@ -33,6 +35,78 @@ func (q *Queries) CreateAuditLog(ctx context.Context, arg CreateAuditLogParams) 
 		arg.Datos,
 	)
 	return err
+}
+
+const createConsumo = `-- name: CreateConsumo :one
+INSERT INTO consumos (tiquetera_id, cliente_id, cajero_id, saldo_resultante, idempotency_key)
+VALUES ($1, $2, $3, $4, $5)
+RETURNING fecha_hora
+`
+
+type CreateConsumoParams struct {
+	TiqueteraID     uuid.UUID
+	ClienteID       uuid.UUID
+	CajeroID        uuid.UUID
+	SaldoResultante int32
+	IdempotencyKey  uuid.UUID
+}
+
+func (q *Queries) CreateConsumo(ctx context.Context, arg CreateConsumoParams) (pgtype.Timestamptz, error) {
+	row := q.db.QueryRow(ctx, createConsumo,
+		arg.TiqueteraID,
+		arg.ClienteID,
+		arg.CajeroID,
+		arg.SaldoResultante,
+		arg.IdempotencyKey,
+	)
+	var fecha_hora pgtype.Timestamptz
+	err := row.Scan(&fecha_hora)
+	return fecha_hora, err
+}
+
+const createConsumoRechazado = `-- name: CreateConsumoRechazado :exec
+INSERT INTO consumos_rechazados (cajero_id, cliente_id, motivo)
+VALUES ($1, $2, $3)
+`
+
+type CreateConsumoRechazadoParams struct {
+	CajeroID  uuid.UUID
+	ClienteID *uuid.UUID
+	Motivo    string
+}
+
+func (q *Queries) CreateConsumoRechazado(ctx context.Context, arg CreateConsumoRechazadoParams) error {
+	_, err := q.db.Exec(ctx, createConsumoRechazado, arg.CajeroID, arg.ClienteID, arg.Motivo)
+	return err
+}
+
+const getConsumoResultadoByKey = `-- name: GetConsumoResultadoByKey :one
+SELECT c.cajero_id, c.saldo_resultante, c.fecha_hora, t.fecha_vencimiento, cl.nombre
+FROM consumos c
+JOIN tiqueteras t ON t.id = c.tiquetera_id
+JOIN clientes cl ON cl.id = c.cliente_id
+WHERE c.idempotency_key = $1
+`
+
+type GetConsumoResultadoByKeyRow struct {
+	CajeroID         uuid.UUID
+	SaldoResultante  int32
+	FechaHora        pgtype.Timestamptz
+	FechaVencimiento time.Time
+	Nombre           string
+}
+
+func (q *Queries) GetConsumoResultadoByKey(ctx context.Context, idempotencyKey uuid.UUID) (GetConsumoResultadoByKeyRow, error) {
+	row := q.db.QueryRow(ctx, getConsumoResultadoByKey, idempotencyKey)
+	var i GetConsumoResultadoByKeyRow
+	err := row.Scan(
+		&i.CajeroID,
+		&i.SaldoResultante,
+		&i.FechaHora,
+		&i.FechaVencimiento,
+		&i.Nombre,
+	)
+	return i, err
 }
 
 const listConsumosByCliente = `-- name: ListConsumosByCliente :many

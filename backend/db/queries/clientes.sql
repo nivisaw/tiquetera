@@ -22,7 +22,7 @@ WHERE nombre ILIKE '%' || sqlc.arg(q)::text || '%'
    OR telefono LIKE '%' || sqlc.arg(q)::text || '%';
 
 -- name: GetClienteByIDForUpdate :one
-SELECT * FROM clientes WHERE id = $1 FOR UPDATE;
+SELECT * FROM clientes WHERE id = $1 FOR NO KEY UPDATE;
 
 -- name: UpdateCliente :one
 UPDATE clientes

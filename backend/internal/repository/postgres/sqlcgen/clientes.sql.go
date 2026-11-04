@@ -89,7 +89,7 @@ func (q *Queries) GetClienteByID(ctx context.Context, id uuid.UUID) (Cliente, er
 }
 
 const getClienteByIDForUpdate = `-- name: GetClienteByIDForUpdate :one
-SELECT id, nombre, telefono, documento, email, qr_token_hash, qr_version, activo, created_by, created_at, updated_at FROM clientes WHERE id = $1 FOR UPDATE
+SELECT id, nombre, telefono, documento, email, qr_token_hash, qr_version, activo, created_by, created_at, updated_at FROM clientes WHERE id = $1 FOR NO KEY UPDATE
 `
 
 func (q *Queries) GetClienteByIDForUpdate(ctx context.Context, id uuid.UUID) (Cliente, error) {

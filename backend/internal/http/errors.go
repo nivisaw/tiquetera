@@ -14,7 +14,12 @@ import (
 // answered with a generic 500.
 func writeError(log *slog.Logger, w http.ResponseWriter, r *http.Request, err error) {
 	var invalid domain.ValidationError
+	var rejection domain.ConsumoRejection
 	switch {
+	case errors.As(err, &rejection):
+		writeProblem(w, http.StatusUnprocessableEntity, string(rejection.Code), rejection.Message)
+	case errors.Is(err, domain.ErrIdempotencyConflict):
+		writeProblem(w, http.StatusConflict, "IDEMPOTENCY_KEY_CONFLICT", "La clave de la solicitud ya fue usada")
 	case errors.As(err, &invalid):
 		writeProblem(w, http.StatusUnprocessableEntity, "VALIDATION_ERROR", invalid.Message)
 	case errors.Is(err, domain.ErrNotFound):

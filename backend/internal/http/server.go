@@ -22,6 +22,8 @@ type Deps struct {
 	Tokens TokenVerifier
 	// Clientes serves client management.
 	Clientes ClienteService
+	// Consumos serves lunch debits.
+	Consumos ConsumoService
 	// TrustProxyHeaders enables X-Forwarded-For; set it only behind a proxy.
 	TrustProxyHeaders bool
 }
@@ -56,6 +58,12 @@ func NewRouter(d Deps) http.Handler {
 		v1.Group(func(private chi.Router) {
 			private.Use(authenticate(d.Tokens))
 			private.Post("/auth/logout", auth.logout)
+
+			private.Group(func(cashier chi.Router) {
+				cashier.Use(RequireRole(domain.RoleCajero, domain.RoleAdmin), limitPerUser(consumoRateLimit, consumoRateWindow))
+				consumos := &consumosHandler{log: d.Log, svc: d.Consumos}
+				cashier.Post("/consumos", consumos.create)
+			})
 
 			private.Group(func(admin chi.Router) {
 				admin.Use(RequireRole(domain.RoleAdmin))
