@@ -6,5 +6,6 @@ RETURNING *;
 -- name: GetActiveTiqueteraByCliente :one
 SELECT * FROM tiqueteras WHERE cliente_id = $1 AND activa;
 
--- name: DeactivateActiveTiquetera :execrows
-UPDATE tiqueteras SET activa = false WHERE cliente_id = $1 AND activa;
+-- name: DeactivateActiveTiquetera :one
+UPDATE tiqueteras SET activa = false WHERE cliente_id = $1 AND activa
+RETURNING saldo;

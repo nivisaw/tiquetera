@@ -226,7 +226,7 @@ func TestLogoutHandler_RequiresAuthAndUsesTokenIdentity(t *testing.T) {
 func TestClientes_Authorization(t *testing.T) {
 	e := newAuthEnv(t, false)
 	request := func(authz string) *httptest.ResponseRecorder {
-		req := httptest.NewRequestWithContext(context.Background(), http.MethodGet, "/v1/clientes", nil)
+		req := httptest.NewRequestWithContext(context.Background(), http.MethodGet, "/v1/clientes/"+uuid.NewString()+"/consumos", nil)
 		if authz != "" {
 			req.Header.Set("Authorization", authz)
 		}

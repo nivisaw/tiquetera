@@ -20,6 +20,8 @@ type Deps struct {
 	DB     Pinger
 	Auth   AuthService
 	Tokens TokenVerifier
+	// Clientes serves client management.
+	Clientes ClienteService
 	// TrustProxyHeaders enables X-Forwarded-For; set it only behind a proxy.
 	TrustProxyHeaders bool
 }
@@ -57,8 +59,14 @@ func NewRouter(d Deps) http.Handler {
 
 			private.Group(func(admin chi.Router) {
 				admin.Use(RequireRole(domain.RoleAdmin))
-				admin.Handle("/clientes", notImplemented())
-				admin.Handle("/clientes/*", notImplemented())
+				clientes := &clientesHandler{log: d.Log, svc: d.Clientes}
+				admin.Post("/clientes", clientes.create)
+				admin.Get("/clientes", clientes.list)
+				admin.Get("/clientes/{id}", clientes.get)
+				admin.Patch("/clientes/{id}", clientes.update)
+				admin.Post("/clientes/{id}/tiqueteras", clientes.recharge)
+				admin.Post("/clientes/{id}/qr/regenerar", clientes.regenerateQR)
+				admin.Get("/clientes/{id}/consumos", notImplemented())
 			})
 		})
 	})
