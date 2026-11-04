@@ -23,6 +23,10 @@ Formato: Decisión · Motivo · Descartado. Para cambiar una, añade un ADR nuev
 ## ADR-006 Autenticación
 - Login usuario/contraseña (argon2id). Access JWT (EdDSA, 15 min) + refresh token opaco rotativo (30 días, hash en BD, detección de reutilización). Roles en servidor: `admin`, `cajero`.
 
+## ADR-006b Estado del usuario en cada request (2026-11-04)
+- Cada request autenticado consulta el usuario por PK: inactivo o inexistente responde 401 `UNAUTHENTICATED`, y el rol vigente es el de la BD, no el del JWT.
+- Motivo: desactivar o degradar a un usuario debe aplicar de inmediato, no al vencer el access token (15 min). Costo aceptado: una lectura por PK por request.
+
 ## ADR-007 Compartir por WhatsApp
 - Primario: `share_plus` comparte la imagen PNG del QR + texto (hoja nativa → WhatsApp).
 - Secundario: deep link `https://wa.me/<E164>?text=...` (solo texto, no adjunta imagen).

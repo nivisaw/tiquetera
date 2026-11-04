@@ -70,6 +70,16 @@ type Consumo struct {
 	IdempotencyKey  uuid.UUID
 }
 
+// ConsumoEntry is one row of a client's consumption history.
+type ConsumoEntry struct {
+	ID              uuid.UUID
+	TiqueteraID     uuid.UUID
+	ClienteID       uuid.UUID
+	CajeroID        uuid.UUID
+	FechaHora       time.Time
+	SaldoResultante int32
+}
+
 // ParseQRPayload returns the token of a well-formed TQ1 payload.
 func ParseQRPayload(payload string) (string, bool) {
 	token, found := strings.CutPrefix(payload, qrPayloadPrefix)

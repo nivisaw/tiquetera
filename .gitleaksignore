@@ -1,0 +1,3 @@
+244b95534f8fa5130ab676fe931117f8cb23806c:backend/internal/domain/usuario_test.go:generic-api-key:11
+244b95534f8fa5130ab676fe931117f8cb23806c:backend/internal/repository/postgres/usuario_test.go:generic-api-key:20
+244b95534f8fa5130ab676fe931117f8cb23806c:backend/internal/service/usuario_test.go:generic-api-key:16

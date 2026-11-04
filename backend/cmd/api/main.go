@@ -63,6 +63,7 @@ func run() error {
 		Tokens:            tokens,
 		Clientes:          service.NewClienteService(postgres.NewClienteRepository(pool), clock),
 		Consumos:          service.NewConsumoService(postgres.NewConsumoRepository(pool), clock),
+		Usuarios:          service.NewUsuarioService(postgres.NewUsuarioRepository(pool), clock),
 		TrustProxyHeaders: cfg.TrustProxyHeaders,
 	}))
 
@@ -115,12 +116,11 @@ func healthcheck() int {
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 	defer cancel()
 	target := fmt.Sprintf("http://127.0.0.1:%d/healthz", port)
-	// G704 false positive: host is fixed loopback and port is a validated integer.
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, target, nil) //nolint:gosec // see above
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, target, nil) // #nosec G704 -- fixed loopback host, validated integer port
 	if err != nil {
 		return 1
 	}
-	resp, err := http.DefaultClient.Do(req) //nolint:gosec // G704: see above
+	resp, err := http.DefaultClient.Do(req) // #nosec G704 -- fixed loopback host, validated integer port
 	if err != nil {
 		return 1
 	}

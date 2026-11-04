@@ -155,6 +155,30 @@ func (r *ClienteRepository) CreateTiquetera(ctx context.Context, t domain.Tiquet
 	return toTiquetera(row), nil
 }
 
+// ListConsumos returns a page of a client's consumptions, newest first, and the total.
+func (r *ClienteRepository) ListConsumos(ctx context.Context, clienteID uuid.UUID, limit, offset int32) ([]domain.ConsumoEntry, int64, error) {
+	total, err := r.q.CountConsumosByCliente(ctx, clienteID)
+	if err != nil {
+		return nil, 0, fmt.Errorf("counting consumptions: %w", err)
+	}
+	rows, err := r.q.ListConsumosByCliente(ctx, sqlcgen.ListConsumosByClienteParams{ClienteID: clienteID, Size: limit, PageOffset: offset})
+	if err != nil {
+		return nil, 0, fmt.Errorf("listing consumptions: %w", err)
+	}
+	items := make([]domain.ConsumoEntry, 0, len(rows))
+	for _, row := range rows {
+		items = append(items, domain.ConsumoEntry{
+			ID:              row.ID,
+			TiqueteraID:     row.TiqueteraID,
+			ClienteID:       row.ClienteID,
+			CajeroID:        row.CajeroID,
+			FechaHora:       row.FechaHora.Time,
+			SaldoResultante: row.SaldoResultante,
+		})
+	}
+	return items, total, nil
+}
+
 // AddAudit inserts an audit_log row.
 func (r *ClienteRepository) AddAudit(ctx context.Context, entry domain.AuditEntry) error {
 	return addAudit(ctx, r.q, entry)

@@ -24,6 +24,8 @@ type Deps struct {
 	Clientes ClienteService
 	// Consumos serves lunch debits.
 	Consumos ConsumoService
+	// Usuarios serves account management.
+	Usuarios UsuarioService
 	// TrustProxyHeaders enables X-Forwarded-For; set it only behind a proxy.
 	TrustProxyHeaders bool
 }
@@ -56,7 +58,7 @@ func NewRouter(d Deps) http.Handler {
 		v1.Post("/auth/refresh", auth.refresh)
 
 		v1.Group(func(private chi.Router) {
-			private.Use(authenticate(d.Tokens))
+			private.Use(authenticate(d.Log, d.Tokens, d.Auth))
 			private.Post("/auth/logout", auth.logout)
 
 			private.Group(func(cashier chi.Router) {
@@ -74,20 +76,19 @@ func NewRouter(d Deps) http.Handler {
 				admin.Patch("/clientes/{id}", clientes.update)
 				admin.Post("/clientes/{id}/tiqueteras", clientes.recharge)
 				admin.Post("/clientes/{id}/qr/regenerar", clientes.regenerateQR)
-				admin.Get("/clientes/{id}/consumos", notImplemented())
+				admin.Get("/clientes/{id}/consumos", clientes.listConsumos)
+
+				usuarios := &usuariosHandler{log: d.Log, svc: d.Usuarios}
+				admin.Post("/usuarios", usuarios.create)
+				admin.Get("/usuarios", usuarios.list)
+				admin.Get("/usuarios/{id}", usuarios.get)
+				admin.Patch("/usuarios/{id}", usuarios.update)
+				admin.Put("/usuarios/{id}/password", usuarios.resetPassword)
 			})
 		})
 	})
 
 	return r
-}
-
-// notImplemented holds a route whose access rules are already enforced until
-// its use case exists.
-func notImplemented() http.HandlerFunc {
-	return func(w http.ResponseWriter, _ *http.Request) {
-		writeProblem(w, http.StatusNotImplemented, "NOT_IMPLEMENTED", "Funcionalidad no disponible")
-	}
 }
 
 // NewServer returns an http.Server with hardened timeouts.

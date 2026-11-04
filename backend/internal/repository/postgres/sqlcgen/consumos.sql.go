@@ -13,6 +13,17 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+const countConsumosByCliente = `-- name: CountConsumosByCliente :one
+SELECT count(*) FROM consumos WHERE cliente_id = $1
+`
+
+func (q *Queries) CountConsumosByCliente(ctx context.Context, clienteID uuid.UUID) (int64, error) {
+	row := q.db.QueryRow(ctx, countConsumosByCliente, clienteID)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
 const createAuditLog = `-- name: CreateAuditLog :exec
 INSERT INTO audit_log (usuario_id, accion, entidad, entidad_id, datos)
 VALUES ($1, $2, $3, $4, $5)
@@ -112,7 +123,7 @@ func (q *Queries) GetConsumoResultadoByKey(ctx context.Context, idempotencyKey u
 const listConsumosByCliente = `-- name: ListConsumosByCliente :many
 SELECT id, tiquetera_id, cliente_id, cajero_id, fecha_hora, saldo_resultante, idempotency_key, created_at, updated_at FROM consumos
 WHERE cliente_id = $1
-ORDER BY fecha_hora DESC
+ORDER BY fecha_hora DESC, id DESC
 LIMIT LEAST($3::int, 50) OFFSET $2::int
 `
 

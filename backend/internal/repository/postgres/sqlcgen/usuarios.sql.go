@@ -12,6 +12,17 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+const countUsuarios = `-- name: CountUsuarios :one
+SELECT count(*) FROM usuarios
+`
+
+func (q *Queries) CountUsuarios(ctx context.Context) (int64, error) {
+	row := q.db.QueryRow(ctx, countUsuarios)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
 const createRefreshToken = `-- name: CreateRefreshToken :exec
 INSERT INTO refresh_tokens (usuario_id, token_hash, family_id, expires_at)
 VALUES ($1, $2, $3, $4)
@@ -32,6 +43,42 @@ func (q *Queries) CreateRefreshToken(ctx context.Context, arg CreateRefreshToken
 		arg.ExpiresAt,
 	)
 	return err
+}
+
+const createUsuario = `-- name: CreateUsuario :one
+INSERT INTO usuarios (username, password_hash, nombre, rol)
+VALUES ($1, $2, $3, $4)
+RETURNING id, username, password_hash, nombre, rol, activo, failed_logins, locked_until, created_at, updated_at
+`
+
+type CreateUsuarioParams struct {
+	Username     string
+	PasswordHash string
+	Nombre       string
+	Rol          string
+}
+
+func (q *Queries) CreateUsuario(ctx context.Context, arg CreateUsuarioParams) (Usuario, error) {
+	row := q.db.QueryRow(ctx, createUsuario,
+		arg.Username,
+		arg.PasswordHash,
+		arg.Nombre,
+		arg.Rol,
+	)
+	var i Usuario
+	err := row.Scan(
+		&i.ID,
+		&i.Username,
+		&i.PasswordHash,
+		&i.Nombre,
+		&i.Rol,
+		&i.Activo,
+		&i.FailedLogins,
+		&i.LockedUntil,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
 }
 
 const createUsuarioIfAbsent = `-- name: CreateUsuarioIfAbsent :execrows
@@ -78,6 +125,17 @@ func (q *Queries) GetRefreshTokenByHashForUpdate(ctx context.Context, tokenHash 
 		&i.UpdatedAt,
 	)
 	return i, err
+}
+
+const getRefreshTokenOwner = `-- name: GetRefreshTokenOwner :one
+SELECT usuario_id FROM refresh_tokens WHERE token_hash = $1
+`
+
+func (q *Queries) GetRefreshTokenOwner(ctx context.Context, tokenHash []byte) (uuid.UUID, error) {
+	row := q.db.QueryRow(ctx, getRefreshTokenOwner, tokenHash)
+	var usuario_id uuid.UUID
+	err := row.Scan(&usuario_id)
+	return usuario_id, err
 }
 
 const getUsuarioByID = `-- name: GetUsuarioByID :one
@@ -146,6 +204,72 @@ func (q *Queries) GetUsuarioByUsername(ctx context.Context, username string) (Us
 	return i, err
 }
 
+const listUsuarios = `-- name: ListUsuarios :many
+SELECT id, username, password_hash, nombre, rol, activo, failed_logins, locked_until, created_at, updated_at FROM usuarios
+ORDER BY username, id
+LIMIT LEAST($2::int, 50) OFFSET $1::int
+`
+
+type ListUsuariosParams struct {
+	PageOffset int32
+	Size       int32
+}
+
+func (q *Queries) ListUsuarios(ctx context.Context, arg ListUsuariosParams) ([]Usuario, error) {
+	rows, err := q.db.Query(ctx, listUsuarios, arg.PageOffset, arg.Size)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Usuario
+	for rows.Next() {
+		var i Usuario
+		if err := rows.Scan(
+			&i.ID,
+			&i.Username,
+			&i.PasswordHash,
+			&i.Nombre,
+			&i.Rol,
+			&i.Activo,
+			&i.FailedLogins,
+			&i.LockedUntil,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const lockActiveAdmins = `-- name: LockActiveAdmins :many
+SELECT id FROM usuarios WHERE rol = 'admin' AND activo ORDER BY id FOR UPDATE
+`
+
+func (q *Queries) LockActiveAdmins(ctx context.Context) ([]uuid.UUID, error) {
+	rows, err := q.db.Query(ctx, lockActiveAdmins)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []uuid.UUID
+	for rows.Next() {
+		var id uuid.UUID
+		if err := rows.Scan(&id); err != nil {
+			return nil, err
+		}
+		items = append(items, id)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const revokeRefreshFamily = `-- name: RevokeRefreshFamily :execrows
 UPDATE refresh_tokens SET revoked_at = $2 WHERE family_id = $1 AND revoked_at IS NULL
 `
@@ -177,6 +301,55 @@ func (q *Queries) RevokeRefreshToken(ctx context.Context, arg RevokeRefreshToken
 	return err
 }
 
+const revokeRefreshTokensByUsuario = `-- name: RevokeRefreshTokensByUsuario :exec
+UPDATE refresh_tokens SET revoked_at = $2 WHERE usuario_id = $1 AND revoked_at IS NULL
+`
+
+type RevokeRefreshTokensByUsuarioParams struct {
+	UsuarioID uuid.UUID
+	RevokedAt pgtype.Timestamptz
+}
+
+func (q *Queries) RevokeRefreshTokensByUsuario(ctx context.Context, arg RevokeRefreshTokensByUsuarioParams) error {
+	_, err := q.db.Exec(ctx, revokeRefreshTokensByUsuario, arg.UsuarioID, arg.RevokedAt)
+	return err
+}
+
+const updateUsuario = `-- name: UpdateUsuario :one
+UPDATE usuarios SET nombre = $2, rol = $3, activo = $4 WHERE id = $1
+RETURNING id, username, password_hash, nombre, rol, activo, failed_logins, locked_until, created_at, updated_at
+`
+
+type UpdateUsuarioParams struct {
+	ID     uuid.UUID
+	Nombre string
+	Rol    string
+	Activo bool
+}
+
+func (q *Queries) UpdateUsuario(ctx context.Context, arg UpdateUsuarioParams) (Usuario, error) {
+	row := q.db.QueryRow(ctx, updateUsuario,
+		arg.ID,
+		arg.Nombre,
+		arg.Rol,
+		arg.Activo,
+	)
+	var i Usuario
+	err := row.Scan(
+		&i.ID,
+		&i.Username,
+		&i.PasswordHash,
+		&i.Nombre,
+		&i.Rol,
+		&i.Activo,
+		&i.FailedLogins,
+		&i.LockedUntil,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
 const updateUsuarioLoginState = `-- name: UpdateUsuarioLoginState :exec
 UPDATE usuarios SET failed_logins = $2, locked_until = $3 WHERE id = $1
 `
@@ -190,4 +363,21 @@ type UpdateUsuarioLoginStateParams struct {
 func (q *Queries) UpdateUsuarioLoginState(ctx context.Context, arg UpdateUsuarioLoginStateParams) error {
 	_, err := q.db.Exec(ctx, updateUsuarioLoginState, arg.ID, arg.FailedLogins, arg.LockedUntil)
 	return err
+}
+
+const updateUsuarioPassword = `-- name: UpdateUsuarioPassword :execrows
+UPDATE usuarios SET password_hash = $2, failed_logins = 0, locked_until = NULL WHERE id = $1
+`
+
+type UpdateUsuarioPasswordParams struct {
+	ID           uuid.UUID
+	PasswordHash string
+}
+
+func (q *Queries) UpdateUsuarioPassword(ctx context.Context, arg UpdateUsuarioPasswordParams) (int64, error) {
+	result, err := q.db.Exec(ctx, updateUsuarioPassword, arg.ID, arg.PasswordHash)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
 }
