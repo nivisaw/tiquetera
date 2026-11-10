@@ -38,6 +38,7 @@ class MemoryTokenStorage implements TokenStorage {
   new([this.tokens]);
 
   Tokens? tokens;
+  String? user;
 
   @override
   Future<Tokens?> read() async => tokens;
@@ -46,5 +47,14 @@ class MemoryTokenStorage implements TokenStorage {
   Future<void> write(Tokens tokens) async => this.tokens = tokens;
 
   @override
-  Future<void> clear() async => tokens = null;
+  Future<String?> readUser() async => user;
+
+  @override
+  Future<void> writeUser(String userJson) async => user = userJson;
+
+  @override
+  Future<void> clear() async {
+    tokens = null;
+    user = null;
+  }
 }

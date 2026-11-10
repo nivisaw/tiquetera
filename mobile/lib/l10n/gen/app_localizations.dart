@@ -100,11 +100,65 @@ abstract class AppLocalizations {
   /// **'Tiquetera'**
   String get appTitle;
 
-  /// No description provided for @homeWelcome.
+  /// No description provided for @loading.
   ///
   /// In es, this message translates to:
-  /// **'Tiquetera de almuerzos'**
-  String get homeWelcome;
+  /// **'Cargando'**
+  String get loading;
+
+  /// No description provided for @fieldRequired.
+  ///
+  /// In es, this message translates to:
+  /// **'Campo obligatorio'**
+  String get fieldRequired;
+
+  /// No description provided for @loginUser.
+  ///
+  /// In es, this message translates to:
+  /// **'Usuario'**
+  String get loginUser;
+
+  /// No description provided for @loginPassword.
+  ///
+  /// In es, this message translates to:
+  /// **'Contraseña'**
+  String get loginPassword;
+
+  /// No description provided for @loginSubmit.
+  ///
+  /// In es, this message translates to:
+  /// **'Ingresar'**
+  String get loginSubmit;
+
+  /// No description provided for @loginInvalidCredentials.
+  ///
+  /// In es, this message translates to:
+  /// **'Usuario o contraseña incorrectos.'**
+  String get loginInvalidCredentials;
+
+  /// No description provided for @loginRateLimited.
+  ///
+  /// In es, this message translates to:
+  /// **'Demasiados intentos. Espera un minuto e inténtalo de nuevo.'**
+  String get loginRateLimited;
+
+  /// No description provided for @logout.
+  ///
+  /// In es, this message translates to:
+  /// **'Cerrar sesión'**
+  String get logout;
+
+  /// No description provided for @clientesTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Clientes'**
+  String get clientesTitle;
+
+  /// No description provided for @escanerTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Escáner'**
+  String get escanerTitle;
 
   /// No description provided for @errorNetwork.
   ///
