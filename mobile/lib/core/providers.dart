@@ -10,6 +10,10 @@ part 'providers.g.dart';
 @Riverpod(keepAlive: true)
 Env env(Ref ref) => Env.fromDartDefines();
 
+/// Reloj inyectable (tests deterministas).
+@Riverpod(keepAlive: true)
+DateTime Function() clock(Ref ref) => DateTime.now;
+
 @Riverpod(keepAlive: true)
 TokenStorage tokenStorage(Ref ref) =>
     SecureTokenStorage(const FlutterSecureStorage());

@@ -49,6 +49,58 @@ final class EnvProvider extends $FunctionalProvider<Env, Env, Env>
 
 String _$envHash() => r'3d4b7ae86d04f5431fe7f47ac2426dcfb2b78628';
 
+/// Reloj inyectable (tests deterministas).
+
+@ProviderFor(clock)
+final clockProvider = ClockProvider._();
+
+/// Reloj inyectable (tests deterministas).
+
+final class ClockProvider
+    extends
+        $FunctionalProvider<
+          DateTime Function(),
+          DateTime Function(),
+          DateTime Function()
+        >
+    with $Provider<DateTime Function()> {
+  /// Reloj inyectable (tests deterministas).
+  ClockProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'clockProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$clockHash();
+
+  @$internal
+  @override
+  $ProviderElement<DateTime Function()> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  DateTime Function() create(Ref ref) {
+    return clock(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(DateTime Function() value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<DateTime Function()>(value),
+    );
+  }
+}
+
+String _$clockHash() => r'3f65ad34ac6fcd532de9004042bdf2ed2bd85b13';
+
 @ProviderFor(tokenStorage)
 final tokenStorageProvider = TokenStorageProvider._();
 
