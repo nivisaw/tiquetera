@@ -9,6 +9,8 @@ class Tokens {
 abstract interface class TokenStorage {
   Future<Tokens?> read();
   Future<void> write(Tokens tokens);
+  Future<String?> readUser();
+  Future<void> writeUser(String userJson);
   Future<void> clear();
 }
 
@@ -17,6 +19,7 @@ class SecureTokenStorage implements TokenStorage {
 
   static const _accessKey = 'access_token';
   static const _refreshKey = 'refresh_token';
+  static const _userKey = 'user';
   final FlutterSecureStorage _storage;
 
   @override
@@ -34,8 +37,16 @@ class SecureTokenStorage implements TokenStorage {
   }
 
   @override
+  Future<String?> readUser() => _storage.read(key: _userKey);
+
+  @override
+  Future<void> writeUser(String userJson) =>
+      _storage.write(key: _userKey, value: userJson);
+
+  @override
   Future<void> clear() async {
     await _storage.delete(key: _accessKey);
     await _storage.delete(key: _refreshKey);
+    await _storage.delete(key: _userKey);
   }
 }

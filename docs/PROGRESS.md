@@ -3,7 +3,7 @@
 Regla: entradas breves (≤ 8 líneas por sesión). Lo más reciente arriba. Solo hechos útiles para el siguiente agente.
 
 ## Estado actual
-- **Siguiente sesión:** S09
+- **Siguiente sesión:** S10
 - **Bloqueos:** ninguno. iOS en pausa (sin Mac): verificar en Fase 3 con GitHub Actions macOS (simulador) o Codemagic/TestFlight
 
 ## Historial
@@ -14,6 +14,12 @@ Regla: entradas breves (≤ 8 líneas por sesión). Lo más reciente arriba. Sol
 - Pendiente/deuda:
 - Comandos de verificación:
 -->
+
+### S09 — Login y sesión por rol — 2026-11-10 — ✅
+- Hecho: `features/auth` (`User` freezed con `Role`, `AuthRepository` login/restore/logout, `AuthController` keepAlive), `LoginPage` (validación, cargando, errores 401/429/sin red/timeout), `authRedirect` puro + `refreshListenable` (admin → `/clientes`, cajero → `/escaner`, placeholders con logout). Si el refresh falla, `sessionExpiredProvider` lleva a login.
+- Decisiones: el usuario se guarda en secure storage junto a los tokens (el refresh no devuelve user). Rol desconocido = sin sesión. Logout borra la sesión local primero y revoca en servidor si hay red. `API_BASE_URL` debe incluir `/v1` (ej. `http://10.0.2.2:8088/v1`).
+- Android: `INTERNET` en el manifest main (faltaba en release). `network_security_config` solo en debug: permite http a 10.0.2.2/localhost.
+- Verificación: analyze 0; 24/24 tests; cobertura auth data 96.7%, domain 100%, presentation 93%. E2E en emulador con Compose aislado: login admin → Clientes, sesión restaurada tras reiniciar, logout 204 → login; 0 tokens/contraseñas en logs de la API.
 
 ### S08 — Esqueleto Flutter — 2026-11-10 — ✅
 - Hecho: `mobile/` (`co.marvinapps.tiquetera`, Android/iOS), Flutter 3.47.9 / Dart 3.13.7 en `%USERPROFILE%/dev/flutter`. Deps fijadas exactas. `core/` con config, theme, router, network, storage y providers; `features/home` placeholder; l10n ARB es (`lib/l10n/gen`); `very_good_analysis` 11.0.0.

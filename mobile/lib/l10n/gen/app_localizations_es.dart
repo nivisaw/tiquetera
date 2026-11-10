@@ -13,7 +13,35 @@ class AppLocalizationsEs extends AppLocalizations {
   String get appTitle => 'Tiquetera';
 
   @override
-  String get homeWelcome => 'Tiquetera de almuerzos';
+  String get loading => 'Cargando';
+
+  @override
+  String get fieldRequired => 'Campo obligatorio';
+
+  @override
+  String get loginUser => 'Usuario';
+
+  @override
+  String get loginPassword => 'Contraseña';
+
+  @override
+  String get loginSubmit => 'Ingresar';
+
+  @override
+  String get loginInvalidCredentials => 'Usuario o contraseña incorrectos.';
+
+  @override
+  String get loginRateLimited =>
+      'Demasiados intentos. Espera un minuto e inténtalo de nuevo.';
+
+  @override
+  String get logout => 'Cerrar sesión';
+
+  @override
+  String get clientesTitle => 'Clientes';
+
+  @override
+  String get escanerTitle => 'Escáner';
 
   @override
   String get errorNetwork =>
