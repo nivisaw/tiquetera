@@ -57,4 +57,23 @@ jobs:
           severity: CRITICAL,HIGH
           exit-code: "1"
 
-  # mobile: se agrega en S08 (analyze, test)
+  mobile:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: mobile
+    steps:
+      - uses: actions/checkout@v7
+      - uses: subosito/flutter-action@v2.23.0
+        with:
+          flutter-version: 3.47.9
+          channel: stable
+          cache: true
+      - run: flutter pub get --enforce-lockfile
+      - name: Generated code up to date
+        run: |
+          flutter gen-l10n
+          dart run build_runner build -d
+          git diff --exit-code
+      - run: flutter analyze
+      - run: flutter test

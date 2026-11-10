@@ -1,0 +1,9 @@
+{
+  "@@locale": "es",
+  "appTitle": "Tiquetera",
+  "homeWelcome": "Tiquetera de almuerzos",
+  "errorNetwork": "Sin conexión. Verifica tu red e inténtalo de nuevo.",
+  "errorTimeout": "El servidor tardó demasiado en responder.",
+  "errorUnauthorized": "Tu sesión expiró. Ingresa de nuevo.",
+  "errorUnknown": "Ocurrió un error inesperado."
+}

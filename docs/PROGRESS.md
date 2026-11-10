@@ -3,8 +3,8 @@
 Regla: entradas breves (≤ 8 líneas por sesión). Lo más reciente arriba. Solo hechos útiles para el siguiente agente.
 
 ## Estado actual
-- **Siguiente sesión:** S08
-- **Bloqueos:** ninguno
+- **Siguiente sesión:** S09
+- **Bloqueos:** ninguno. iOS en pausa (sin Mac): verificar en Fase 3 con GitHub Actions macOS (simulador) o Codemagic/TestFlight
 
 ## Historial
 <!-- Plantilla:
@@ -14,6 +14,15 @@ Regla: entradas breves (≤ 8 líneas por sesión). Lo más reciente arriba. Sol
 - Pendiente/deuda:
 - Comandos de verificación:
 -->
+
+### S08 — Esqueleto Flutter — 2026-11-10 — ✅
+- Hecho: `mobile/` (`co.marvinapps.tiquetera`, Android/iOS), Flutter 3.47.9 / Dart 3.13.7 en `%USERPROFILE%/dev/flutter`. Deps fijadas exactas. `core/` con config, theme, router, network, storage y providers; `features/home` placeholder; l10n ARB es (`lib/l10n/gen`); `very_good_analysis` 11.0.0.
+- Red: dio con timeouts de 10 s; `AuthInterceptor` usa un único refresh compartido (future) para 401 concurrentes, reintenta una vez y, si el refresh devuelve 401, limpia tokens y avisa `sessionExpiredProvider`. `ErrorMappingInterceptor` traduce RFC7807 a la `AppFailure` sellada.
+- Config: `--dart-define=API_BASE_URL=... FLAVOR=dev|prod`; prod exige https; falla rápido si falta. Android: `allowBackup=false`, `usesCleartextTraffic=false`.
+- Decisiones: Dart 3.13 usa la sintaxis de constructor `new(...)` (lint `unnecessary_type_name_in_constructor`). Archivos `.g.dart` commiteados.
+- Android: arranca en AVD `Medium_Phone_API_37.0` (API 37). Con Impeller/OpenGLES del emulador la pantalla queda negra; con `am start ... --ez enable-impeller false` (Skia) renderiza bien. Es un problema de GPU del emulador; validar Impeller en dispositivo real (S12). Host: cmdline-tools 1.1.16717390 y NDK 28.2.13676358 instalados con `android sdk install` (Gradle no pudo instalarlo solo).
+- Pendiente: iOS en pausa por decisión del usuario (sin Mac); el proyecto iOS existe, pero no se ha compilado ni probado. Dev contra API http local: S09 debe añadir network_security_config solo en debug, o usar https local. freezed/json_serializable instalados sin uso aún.
+- Verificación: `flutter analyze` 0 issues; `flutter test` 8/8 (refresh concurrente único, refresh rechazado, login sin bearer, mapper, arranque en es).
 
 ### S07 — Usuarios, historial y endurecimiento — 2026-11-04 — ✅
 - Hecho: CRUD `/usuarios`, `GET /clientes/{id}/consumos`, `gosec` v2.30.0 en CI. Desactivar, cambiar rol o resetear contraseña revoca refresh tokens; `ULTIMO_ADMIN` protege con bloqueo al último admin activo.
