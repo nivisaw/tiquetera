@@ -50,15 +50,15 @@ final class AuthRepositoryProvider
 
 String _$authRepositoryHash() => r'4ec1c54111a1fe95af316fbf157118ddd755725c';
 
-/// Sesión actual: `null` = sin sesión. Carga inicial desde almacenamiento seguro.
+/// Sesión actual (`null` = sin sesión), restaurada del almacenamiento seguro.
 
 @ProviderFor(AuthController)
 final authControllerProvider = AuthControllerProvider._();
 
-/// Sesión actual: `null` = sin sesión. Carga inicial desde almacenamiento seguro.
+/// Sesión actual (`null` = sin sesión), restaurada del almacenamiento seguro.
 final class AuthControllerProvider
     extends $AsyncNotifierProvider<AuthController, User?> {
-  /// Sesión actual: `null` = sin sesión. Carga inicial desde almacenamiento seguro.
+  /// Sesión actual (`null` = sin sesión), restaurada del almacenamiento seguro.
   AuthControllerProvider._()
     : super(
         from: null,
@@ -80,7 +80,7 @@ final class AuthControllerProvider
 
 String _$authControllerHash() => r'fcb99600f59b4103a364beeb6af9d670821fa5e9';
 
-/// Sesión actual: `null` = sin sesión. Carga inicial desde almacenamiento seguro.
+/// Sesión actual (`null` = sin sesión), restaurada del almacenamiento seguro.
 
 abstract class _$AuthController extends $AsyncNotifier<User?> {
   FutureOr<User?> build();
