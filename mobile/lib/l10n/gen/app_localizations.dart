@@ -183,6 +183,258 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Ocurrió un error inesperado.'**
   String get errorUnknown;
+
+  /// No description provided for @retry.
+  ///
+  /// In es, this message translates to:
+  /// **'Reintentar'**
+  String get retry;
+
+  /// No description provided for @clientesSearch.
+  ///
+  /// In es, this message translates to:
+  /// **'Buscar por nombre o teléfono'**
+  String get clientesSearch;
+
+  /// No description provided for @clientesEmpty.
+  ///
+  /// In es, this message translates to:
+  /// **'No hay clientes registrados.'**
+  String get clientesEmpty;
+
+  /// No description provided for @clientesNoResults.
+  ///
+  /// In es, this message translates to:
+  /// **'No hay clientes que coincidan con la búsqueda.'**
+  String get clientesNoResults;
+
+  /// No description provided for @clientesNew.
+  ///
+  /// In es, this message translates to:
+  /// **'Nuevo cliente'**
+  String get clientesNew;
+
+  /// No description provided for @clientesLoadMore.
+  ///
+  /// In es, this message translates to:
+  /// **'Cargar más'**
+  String get clientesLoadMore;
+
+  /// No description provided for @clienteInactivo.
+  ///
+  /// In es, this message translates to:
+  /// **'Inactivo'**
+  String get clienteInactivo;
+
+  /// No description provided for @clienteNombre.
+  ///
+  /// In es, this message translates to:
+  /// **'Nombre'**
+  String get clienteNombre;
+
+  /// No description provided for @clienteTelefono.
+  ///
+  /// In es, this message translates to:
+  /// **'Teléfono'**
+  String get clienteTelefono;
+
+  /// No description provided for @clienteDocumento.
+  ///
+  /// In es, this message translates to:
+  /// **'Documento (opcional)'**
+  String get clienteDocumento;
+
+  /// No description provided for @clienteEmail.
+  ///
+  /// In es, this message translates to:
+  /// **'Correo (opcional)'**
+  String get clienteEmail;
+
+  /// No description provided for @clienteAlmuerzos.
+  ///
+  /// In es, this message translates to:
+  /// **'Almuerzos'**
+  String get clienteAlmuerzos;
+
+  /// No description provided for @clienteVencimiento.
+  ///
+  /// In es, this message translates to:
+  /// **'Vence'**
+  String get clienteVencimiento;
+
+  /// No description provided for @clienteSave.
+  ///
+  /// In es, this message translates to:
+  /// **'Guardar'**
+  String get clienteSave;
+
+  /// No description provided for @clienteDecrease.
+  ///
+  /// In es, this message translates to:
+  /// **'Quitar un almuerzo'**
+  String get clienteDecrease;
+
+  /// No description provided for @clienteIncrease.
+  ///
+  /// In es, this message translates to:
+  /// **'Agregar un almuerzo'**
+  String get clienteIncrease;
+
+  /// No description provided for @clienteSelectDate.
+  ///
+  /// In es, this message translates to:
+  /// **'Elegir fecha de vencimiento'**
+  String get clienteSelectDate;
+
+  /// No description provided for @errNombre.
+  ///
+  /// In es, this message translates to:
+  /// **'Escribe entre 2 y 120 caracteres.'**
+  String get errNombre;
+
+  /// No description provided for @errTelefono.
+  ///
+  /// In es, this message translates to:
+  /// **'Escribe 10 dígitos, por ejemplo 300 123 4567.'**
+  String get errTelefono;
+
+  /// No description provided for @errEmail.
+  ///
+  /// In es, this message translates to:
+  /// **'Correo no válido.'**
+  String get errEmail;
+
+  /// No description provided for @errDocumento.
+  ///
+  /// In es, this message translates to:
+  /// **'Máximo 30 caracteres.'**
+  String get errDocumento;
+
+  /// No description provided for @errAlmuerzos.
+  ///
+  /// In es, this message translates to:
+  /// **'Entre 1 y 500 almuerzos.'**
+  String get errAlmuerzos;
+
+  /// No description provided for @errTelefonoDuplicado.
+  ///
+  /// In es, this message translates to:
+  /// **'Ya existe un cliente con ese teléfono.'**
+  String get errTelefonoDuplicado;
+
+  /// No description provided for @errValidacion.
+  ///
+  /// In es, this message translates to:
+  /// **'Revisa los datos: algún valor no es válido.'**
+  String get errValidacion;
+
+  /// No description provided for @errClienteInactivo.
+  ///
+  /// In es, this message translates to:
+  /// **'El cliente está inactivo.'**
+  String get errClienteInactivo;
+
+  /// No description provided for @errNotFound.
+  ///
+  /// In es, this message translates to:
+  /// **'El cliente no existe.'**
+  String get errNotFound;
+
+  /// No description provided for @qrTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Código QR'**
+  String get qrTitle;
+
+  /// No description provided for @qrSemantics.
+  ///
+  /// In es, this message translates to:
+  /// **'Código QR de {nombre}'**
+  String qrSemantics(String nombre);
+
+  /// No description provided for @saldoLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'{saldo, plural, =1{1 almuerzo disponible} other{{saldo} almuerzos disponibles}}'**
+  String saldoLabel(int saldo);
+
+  /// No description provided for @venceLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Vence el {fecha}'**
+  String venceLabel(String fecha);
+
+  /// No description provided for @qrDone.
+  ///
+  /// In es, this message translates to:
+  /// **'Listo'**
+  String get qrDone;
+
+  /// No description provided for @detalleTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Cliente'**
+  String get detalleTitle;
+
+  /// No description provided for @detalleSinTiquetera.
+  ///
+  /// In es, this message translates to:
+  /// **'Sin tiquetera activa.'**
+  String get detalleSinTiquetera;
+
+  /// No description provided for @detalleRecargar.
+  ///
+  /// In es, this message translates to:
+  /// **'Recargar'**
+  String get detalleRecargar;
+
+  /// No description provided for @detalleRegenerar.
+  ///
+  /// In es, this message translates to:
+  /// **'Regenerar QR'**
+  String get detalleRegenerar;
+
+  /// No description provided for @recargaTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Nueva recarga'**
+  String get recargaTitle;
+
+  /// No description provided for @recargaHint.
+  ///
+  /// In es, this message translates to:
+  /// **'Se suma al saldo actual.'**
+  String get recargaHint;
+
+  /// No description provided for @recargaOk.
+  ///
+  /// In es, this message translates to:
+  /// **'Recarga registrada.'**
+  String get recargaOk;
+
+  /// No description provided for @cancel.
+  ///
+  /// In es, this message translates to:
+  /// **'Cancelar'**
+  String get cancel;
+
+  /// No description provided for @regenerarTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'¿Regenerar el código QR?'**
+  String get regenerarTitle;
+
+  /// No description provided for @regenerarBody.
+  ///
+  /// In es, this message translates to:
+  /// **'El código QR anterior dejará de funcionar. El cliente necesitará el nuevo.'**
+  String get regenerarBody;
+
+  /// No description provided for @regenerarConfirm.
+  ///
+  /// In es, this message translates to:
+  /// **'Regenerar'**
+  String get regenerarConfirm;
 }
 
 class _AppLocalizationsDelegate

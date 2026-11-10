@@ -14,5 +14,68 @@
   "errorNetwork": "Sin conexión. Verifica tu red e inténtalo de nuevo.",
   "errorTimeout": "El servidor tardó demasiado en responder.",
   "errorUnauthorized": "Tu sesión expiró. Ingresa de nuevo.",
-  "errorUnknown": "Ocurrió un error inesperado."
+  "errorUnknown": "Ocurrió un error inesperado.",
+  "retry": "Reintentar",
+  "clientesSearch": "Buscar por nombre o teléfono",
+  "clientesEmpty": "No hay clientes registrados.",
+  "clientesNoResults": "No hay clientes que coincidan con la búsqueda.",
+  "clientesNew": "Nuevo cliente",
+  "clientesLoadMore": "Cargar más",
+  "clienteInactivo": "Inactivo",
+  "clienteNombre": "Nombre",
+  "clienteTelefono": "Teléfono",
+  "clienteDocumento": "Documento (opcional)",
+  "clienteEmail": "Correo (opcional)",
+  "clienteAlmuerzos": "Almuerzos",
+  "clienteVencimiento": "Vence",
+  "clienteSave": "Guardar",
+  "clienteDecrease": "Quitar un almuerzo",
+  "clienteIncrease": "Agregar un almuerzo",
+  "clienteSelectDate": "Elegir fecha de vencimiento",
+  "errNombre": "Escribe entre 2 y 120 caracteres.",
+  "errTelefono": "Escribe 10 dígitos, por ejemplo 300 123 4567.",
+  "errEmail": "Correo no válido.",
+  "errDocumento": "Máximo 30 caracteres.",
+  "errAlmuerzos": "Entre 1 y 500 almuerzos.",
+  "errTelefonoDuplicado": "Ya existe un cliente con ese teléfono.",
+  "errValidacion": "Revisa los datos: algún valor no es válido.",
+  "errClienteInactivo": "El cliente está inactivo.",
+  "errNotFound": "El cliente no existe.",
+  "qrTitle": "Código QR",
+  "qrSemantics": "Código QR de {nombre}",
+  "@qrSemantics": {
+    "placeholders": {
+      "nombre": {
+        "type": "String"
+      }
+    }
+  },
+  "saldoLabel": "{saldo, plural, =1{1 almuerzo disponible} other{{saldo} almuerzos disponibles}}",
+  "@saldoLabel": {
+    "placeholders": {
+      "saldo": {
+        "type": "int"
+      }
+    }
+  },
+  "venceLabel": "Vence el {fecha}",
+  "@venceLabel": {
+    "placeholders": {
+      "fecha": {
+        "type": "String"
+      }
+    }
+  },
+  "qrDone": "Listo",
+  "detalleTitle": "Cliente",
+  "detalleSinTiquetera": "Sin tiquetera activa.",
+  "detalleRecargar": "Recargar",
+  "detalleRegenerar": "Regenerar QR",
+  "recargaTitle": "Nueva recarga",
+  "recargaHint": "Se suma al saldo actual.",
+  "recargaOk": "Recarga registrada.",
+  "cancel": "Cancelar",
+  "regenerarTitle": "¿Regenerar el código QR?",
+  "regenerarBody": "El código QR anterior dejará de funcionar. El cliente necesitará el nuevo.",
+  "regenerarConfirm": "Regenerar"
 }

@@ -5,7 +5,10 @@ import 'package:tiquetera/features/auth/domain/user.dart';
 import 'package:tiquetera/features/auth/presentation/auth_controller.dart';
 import 'package:tiquetera/features/auth/presentation/login_page.dart';
 import 'package:tiquetera/features/auth/presentation/splash_page.dart';
+import 'package:tiquetera/features/clientes/presentation/cliente_detalle_page.dart';
+import 'package:tiquetera/features/clientes/presentation/cliente_form_page.dart';
 import 'package:tiquetera/features/clientes/presentation/clientes_page.dart';
+import 'package:tiquetera/features/clientes/presentation/qr_page.dart';
 import 'package:tiquetera/features/escaner/presentation/escaner_page.dart';
 
 part 'app_router.g.dart';
@@ -64,6 +67,20 @@ GoRouter appRouter(Ref ref) {
       GoRoute(
         path: AppRoutes.clientes,
         builder: (_, _) => const ClientesPage(),
+        routes: [
+          GoRoute(path: 'nuevo', builder: (_, _) => const ClienteFormPage()),
+          GoRoute(
+            path: 'qr',
+            redirect: (_, state) =>
+                state.extra is QrArgs ? null : AppRoutes.clientes,
+            builder: (_, state) => QrPage(args: state.extra! as QrArgs),
+          ),
+          GoRoute(
+            path: ':id',
+            builder: (_, state) =>
+                ClienteDetallePage(id: state.pathParameters['id']!),
+          ),
+        ],
       ),
       GoRoute(path: AppRoutes.escaner, builder: (_, _) => const EscanerPage()),
     ],

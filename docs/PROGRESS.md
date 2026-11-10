@@ -3,7 +3,7 @@
 Regla: entradas breves (≤ 8 líneas por sesión). Lo más reciente arriba. Solo hechos útiles para el siguiente agente.
 
 ## Estado actual
-- **Siguiente sesión:** S10
+- **Siguiente sesión:** S11
 - **Bloqueos:** ninguno. iOS en pausa (sin Mac): verificar en Fase 3 con GitHub Actions macOS (simulador) o Codemagic/TestFlight
 
 ## Historial
@@ -14,6 +14,12 @@ Regla: entradas breves (≤ 8 líneas por sesión). Lo más reciente arriba. Sol
 - Pendiente/deuda:
 - Comandos de verificación:
 -->
+
+### S10 — Admin: registro de cliente y QR — 2026-11-10 — ✅
+- Hecho: `features/clientes` (`Cliente`/`Tiquetera` freezed, `ClienteRules` (validación, +57→E.164, hoy en Bogotá, formatos dd/MM/yyyy), `ClientesRepository` (crear, listar, detalle, recargar, regenerar)), pantallas listado con búsqueda debounced + "Cargar más", formulario (stepper 1..500, date picker ≥ hoy), QR (`qr_flutter` 4.1.0, negro sobre blanco también en modo oscuro), detalle con recarga (bottom sheet) y regenerar con confirmación. Rutas `/clientes/nuevo`, `/clientes/qr` (payload por `extra`, no se persiste), `/clientes/:id`.
+- Decisiones: `clockProvider` inyectable en `core/providers.dart`. Providers de clientes con `retry: noRetry` (Riverpod 3 reintenta solo y ocultaba el estado de error). Defaults del formulario: 20 almuerzos, vence en 30 días. QrImageView con estilos por defecto (pasar estilos sin forma pinta círculos).
+- Pendiente: botones Compartir (S11). No se probó en emulador; solo tests.
+- Verificación: analyze 0; 48/48 tests (goldens `test/features/clientes/goldens/qr_page_{light,dark}.png`); cobertura clientes data/domain 100%, presentation ≥ 90%.
 
 ### S09 — Login y sesión por rol — 2026-11-10 — ✅
 - Hecho: `features/auth` (`User` freezed con `Role`, `AuthRepository` login/restore/logout, `AuthController` keepAlive), `LoginPage` (validación, cargando, errores 401/429/sin red/timeout), `authRedirect` puro + `refreshListenable` (admin → `/clientes`, cajero → `/escaner`, placeholders con logout). Si el refresh falla, `sessionExpiredProvider` lleva a login.
