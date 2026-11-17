@@ -76,6 +76,23 @@ class ClientesRepository {
     return payload;
   }
 
+  Future<ConsumoPagina> listConsumos(String id, {int page = 1}) async {
+    final data = await _send(
+      'GET',
+      '${_p(id)}/consumos',
+      query: {'page': page, 'size': pageSize},
+    );
+    return _parse<ConsumoPagina>(
+      () => ConsumoPagina(
+        items: (data['items'] as List<dynamic>)
+            .map((e) => Consumo.fromJson(e as Map<String, dynamic>))
+            .toList(growable: false),
+        page: data['page'] as int,
+        total: data['total'] as int,
+      ),
+    );
+  }
+
   String _p(String id) => '/clientes/${Uri.encodeComponent(id)}';
 
   T _parse<T>(T Function() fn) {

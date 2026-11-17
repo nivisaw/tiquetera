@@ -97,5 +97,60 @@ class ClientesList extends _$ClientesList {
 Future<Cliente> clienteDetalle(Ref ref, String id) =>
     ref.watch(clientesRepositoryProvider).get(id);
 
+class ConsumosState {
+  const new({
+    required this.items,
+    required this.total,
+    required this.page,
+    this.loadingMore = false,
+  });
+
+  final List<Consumo> items;
+  final int total;
+  final int page;
+  final bool loadingMore;
+
+  bool get hasMore => items.length < total;
+}
+
+/// Historial de consumos de un cliente, más reciente primero.
+@Riverpod(retry: noRetry)
+class ConsumosHistorial extends _$ConsumosHistorial {
+  @override
+  Future<ConsumosState> build(String clienteId) async {
+    final p = await ref
+        .read(clientesRepositoryProvider)
+        .listConsumos(clienteId);
+    return ConsumosState(items: p.items, total: p.total, page: p.page);
+  }
+
+  Future<void> loadMore() async {
+    final c = state.value;
+    if (c == null || c.loadingMore || !c.hasMore) return;
+    state = AsyncData(
+      ConsumosState(
+        items: c.items,
+        total: c.total,
+        page: c.page,
+        loadingMore: true,
+      ),
+    );
+    try {
+      final next = await ref
+          .read(clientesRepositoryProvider)
+          .listConsumos(clienteId, page: c.page + 1);
+      state = AsyncData(
+        ConsumosState(
+          items: [...c.items, ...next.items],
+          total: next.total,
+          page: next.page,
+        ),
+      );
+    } on Object {
+      state = AsyncData(c);
+    }
+  }
+}
+
 @Riverpod(keepAlive: true)
 QrShareService qrShareService(Ref ref) => const QrShareService();

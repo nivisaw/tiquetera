@@ -97,6 +97,17 @@
   "detalleSinTiquetera": "Sin tiquetera activa.",
   "detalleRecargar": "Recargar",
   "detalleRegenerar": "Regenerar QR",
+  "historialTitle": "Historial de consumos",
+  "historialEmpty": "Aún no hay consumos registrados.",
+  "historialError": "No se pudo cargar el historial.",
+  "historialSaldo": "{saldo, plural, =1{Quedó 1 almuerzo} other{Quedaron {saldo} almuerzos}}",
+  "@historialSaldo": {
+    "placeholders": {
+      "saldo": {
+        "type": "int"
+      }
+    }
+  },
   "recargaTitle": "Nueva recarga",
   "recargaHint": "Se suma al saldo actual.",
   "recargaOk": "Recarga registrada.",

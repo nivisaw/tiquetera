@@ -102,6 +102,7 @@ class _BodyState extends ConsumerState<_Body> {
     if (done == true && mounted) {
       ref
         ..invalidate(clienteDetalleProvider(c.id))
+        ..invalidate(consumosHistorialProvider(c.id))
         ..invalidate(clientesListProvider);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(AppLocalizations.of(context).recargaOk)),
@@ -181,6 +182,13 @@ class _BodyState extends ConsumerState<_Body> {
           icon: const Icon(Icons.qr_code),
           label: Text(l10n.detalleRegenerar),
         ),
+        const SizedBox(height: AppSpacing.lg),
+        Semantics(
+          header: true,
+          child: Text(l10n.historialTitle, style: text.titleMedium),
+        ),
+        const SizedBox(height: AppSpacing.sm),
+        HistorialSection(clienteId: c.id),
       ],
     );
   }
@@ -274,5 +282,62 @@ class _RecargaSheetState extends ConsumerState<RecargaSheet> {
         ),
       ),
     );
+  }
+}
+
+class HistorialSection extends ConsumerWidget {
+  const new({required this.clienteId, super.key});
+
+  final String clienteId;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
+    final provider = consumosHistorialProvider(clienteId);
+    return switch (ref.watch(provider)) {
+      AsyncData(:final value) when value.items.isEmpty => Padding(
+        padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
+        child: Text(l10n.historialEmpty),
+      ),
+      AsyncData(:final value) => Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          for (final c in value.items)
+            ListTile(
+              key: ValueKey('consumo_${c.id}'),
+              contentPadding: EdgeInsets.zero,
+              leading: const Icon(Icons.restaurant),
+              title: Text(ClienteRules.displayDateTimeBogota(c.fechaHora)),
+              subtitle: Text(l10n.historialSaldo(c.saldoResultante)),
+            ),
+          if (value.hasMore)
+            TextButton(
+              key: const Key('historial_more'),
+              onPressed: value.loadingMore
+                  ? null
+                  : () => ref.read(provider.notifier).loadMore(),
+              child: Text(l10n.clientesLoadMore),
+            ),
+        ],
+      ),
+      AsyncError() => Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(l10n.historialError),
+          TextButton.icon(
+            key: const Key('historial_retry'),
+            onPressed: () => ref.invalidate(provider),
+            icon: const Icon(Icons.refresh),
+            label: Text(l10n.retry),
+          ),
+        ],
+      ),
+      _ => Padding(
+        padding: const EdgeInsets.all(AppSpacing.md),
+        child: Center(
+          child: CircularProgressIndicator(semanticsLabel: l10n.loading),
+        ),
+      ),
+    };
   }
 }

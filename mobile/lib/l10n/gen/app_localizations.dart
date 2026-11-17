@@ -430,6 +430,30 @@ abstract class AppLocalizations {
   /// **'Regenerar QR'**
   String get detalleRegenerar;
 
+  /// No description provided for @historialTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Historial de consumos'**
+  String get historialTitle;
+
+  /// No description provided for @historialEmpty.
+  ///
+  /// In es, this message translates to:
+  /// **'Aún no hay consumos registrados.'**
+  String get historialEmpty;
+
+  /// No description provided for @historialError.
+  ///
+  /// In es, this message translates to:
+  /// **'No se pudo cargar el historial.'**
+  String get historialError;
+
+  /// No description provided for @historialSaldo.
+  ///
+  /// In es, this message translates to:
+  /// **'{saldo, plural, =1{Quedó 1 almuerzo} other{Quedaron {saldo} almuerzos}}'**
+  String historialSaldo(int saldo);
+
   /// No description provided for @recargaTitle.
   ///
   /// In es, this message translates to:
