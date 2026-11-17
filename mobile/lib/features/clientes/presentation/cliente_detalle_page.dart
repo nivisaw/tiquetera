@@ -85,6 +85,7 @@ class _BodyState extends ConsumerState<_Body> {
           saldo: t?.saldo ?? 0,
           fechaVencimiento: t?.fechaVencimiento ?? _today(),
           payload: payload,
+          telefono: c.telefono,
         ),
       );
     });

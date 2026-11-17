@@ -67,6 +67,32 @@
     }
   },
   "qrDone": "Listo",
+  "qrShareWhatsApp": "Compartir por WhatsApp",
+  "qrOpenChat": "Abrir chat del cliente",
+  "qrShareError": "No se pudo compartir el código QR. Intenta de nuevo.",
+  "qrChatError": "No se pudo abrir WhatsApp.",
+  "qrShareMessage": "Hola {nombre}, esta es tu tiquetera de almuerzos. Saldo: {saldo} almuerzos. Vence el {fecha}. Presenta este código QR en caja.",
+  "@qrShareMessage": {
+    "placeholders": {
+      "nombre": {
+        "type": "String"
+      },
+      "saldo": {
+        "type": "int"
+      },
+      "fecha": {
+        "type": "String"
+      }
+    }
+  },
+  "qrChatMessage": "Hola {nombre}, te envío el código QR de tu tiquetera de almuerzos.",
+  "@qrChatMessage": {
+    "placeholders": {
+      "nombre": {
+        "type": "String"
+      }
+    }
+  },
   "detalleTitle": "Cliente",
   "detalleSinTiquetera": "Sin tiquetera activa.",
   "detalleRecargar": "Recargar",
@@ -77,5 +103,34 @@
   "cancel": "Cancelar",
   "regenerarTitle": "¿Regenerar el código QR?",
   "regenerarBody": "El código QR anterior dejará de funcionar. El cliente necesitará el nuevo.",
-  "regenerarConfirm": "Regenerar"
+  "regenerarConfirm": "Regenerar",
+  "escanerPermisoTitle": "Necesitamos la cámara",
+  "escanerPermisoBody": "La cámara se usa solo para leer el código QR de la tiquetera del cliente.",
+  "escanerPermisoAllow": "Permitir cámara",
+  "escanerPermisoDenied": "El permiso de cámara está bloqueado. Actívalo en los ajustes del teléfono.",
+  "escanerPermisoSettings": "Abrir ajustes",
+  "escanerGuia": "Apunta al código QR del cliente",
+  "escanerLinterna": "Linterna",
+  "escanerProcesando": "Registrando almuerzo…",
+  "escanerExito": "¡Almuerzo registrado!",
+  "escanerSaldoLabel": "almuerzos restantes",
+  "escanerVence": "Vence el {fecha}",
+  "@escanerVence": {
+    "placeholders": {
+      "fecha": {
+        "type": "String"
+      }
+    }
+  },
+  "escanerTocaParaVolver": "Toca para escanear otro",
+  "escanerRechazoTitle": "Almuerzo no registrado",
+  "rechazoQrInvalido": "Este código no es una tiquetera válida.",
+  "rechazoClienteNoExiste": "Código desconocido o reemplazado. Pide al cliente su QR más reciente.",
+  "rechazoClienteInactivo": "El cliente está inactivo.",
+  "rechazoSinTiquetera": "El cliente no tiene una tiquetera activa.",
+  "rechazoTiqueteraVencida": "La tiquetera está vencida.",
+  "rechazoSinSaldo": "La tiquetera no tiene almuerzos disponibles.",
+  "rechazoSinRed": "Sin conexión con el servidor. Escanea de nuevo.",
+  "rechazoDemasiados": "Demasiados escaneos. Espera un minuto.",
+  "rechazoError": "No se pudo registrar. Inténtalo de nuevo."
 }

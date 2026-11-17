@@ -79,6 +79,7 @@ class _ClienteFormPageState extends ConsumerState<ClienteFormPage> {
           saldo: r.tiquetera.saldo,
           fechaVencimiento: r.tiquetera.fechaVencimiento,
           payload: r.qrPayload,
+          telefono: r.cliente.telefono,
         ),
       );
     } on AppFailure catch (f) {

@@ -3,7 +3,7 @@
 Regla: entradas breves (≤ 8 líneas por sesión). Lo más reciente arriba. Solo hechos útiles para el siguiente agente.
 
 ## Estado actual
-- **Siguiente sesión:** S11
+- **Siguiente sesión:** S13 (antes: prueba de S12 en dispositivo real)
 - **Bloqueos:** ninguno. iOS en pausa (sin Mac): verificar en Fase 3 con GitHub Actions macOS (simulador) o Codemagic/TestFlight
 
 ## Historial
@@ -14,6 +14,21 @@ Regla: entradas breves (≤ 8 líneas por sesión). Lo más reciente arriba. Sol
 - Pendiente/deuda:
 - Comandos de verificación:
 -->
+
+### S12 — Cajero: escáner y feedback — 2026-11-17 — ⚠️
+- Hecho: `features/escaner`: `ConsumosRepository` (POST /consumos + `Idempotency-Key` UUID v4 con `Random.secure`, nueva por escaneo), `ScanDebouncer` (mismo token ignorado 5 s; se olvida tras fallo de red para reintentar ya), `EscanerController` (Escaneando/Procesando/Exito/Rechazo), `RechazoMotivo.fromCode` (6 códigos 422 + 429, red/timeout, otros). `EscanerPage`: explicación de permiso → solicitar / "Abrir ajustes" si bloqueado (re-chequea al volver a la app); `mobile_scanner` solo QR, marco guía, linterna. `ResultadoView` verde/rojo, icono animado, saldo 72sp, háptico (doble en rechazo) + `SystemSound.click`, auto-retorno 3 s o toque.
+- Dependencias: mobile_scanner 7.5.0, permission_handler 13.0.2 (aprobadas). Permiso CAMERA (Android) y `NSCameraUsageDescription` (iOS).
+- Decisiones: sin dep `uuid` (generador propio). TIQUETERA_VENCIDA sin fecha (el 422 no la trae). Tests que navegan al escáner usan `deniedCameraOverride` (`test/features/escaner/camera_fakes.dart`).
+- Pendiente: prueba en dispositivo real (Android) — escaneo, linterna, permisos, háptico/sonido. iOS: Podfile aún no existe; al generarlo añadir macro `PERMISSION_CAMERA=1` de permission_handler.
+- Verificación: analyze 0; 82/82 tests; cobertura escaner domain/data 100% (salvo llamadas nativas de `CameraPermission`), presentation ≥ 72%.
+
+### S11 — Compartir por WhatsApp — 2026-11-17 — ✅
+- Hecho: `WhatsAppLink.build` (domain, wa.me solo dígitos + texto con `Uri.encodeComponent`), `QrShareService` (data: PNG a temp → `share_plus`, borra el archivo en `finally`; `openChat` con `url_launcher` externo), `qrShareServiceProvider`. QrPage: RepaintBoundary del QrCard (pixelRatio 3), botones "Compartir por WhatsApp" (hoja de compartir con PNG + mensaje), "Abrir chat del cliente" (wa.me, solo texto) y "Listo". `QrArgs.telefono` nuevo.
+- Dependencias: share_plus 13.3.1, path_provider 2.1.6, url_launcher 6.3.3 (aprobadas).
+- Decisiones: wa.me no adjunta imágenes, por eso el envío del PNG va por la hoja de compartir del sistema. El mensaje no incluye el token QR (test).
+- Pendiente: prueba manual en iOS (sin Mac, Fase 3).
+- Verificación: analyze 0; 59/59 tests; goldens QR regenerados; cobertura qr_share_service y whatsapp_link 100%. Prueba manual en emulador Android OK (usuario).
+- Ejecutar app: `flutter run --dart-define=API_BASE_URL=http://10.0.2.2:8088/v1 --dart-define=FLAVOR=dev`.
 
 ### S10 — Admin: registro de cliente y QR — 2026-11-10 — ✅
 - Hecho: `features/clientes` (`Cliente`/`Tiquetera` freezed, `ClienteRules` (validación, +57→E.164, hoy en Bogotá, formatos dd/MM/yyyy), `ClientesRepository` (crear, listar, detalle, recargar, regenerar)), pantallas listado con búsqueda debounced + "Cargar más", formulario (stepper 1..500, date picker ≥ hoy), QR (`qr_flutter` 4.1.0, negro sobre blanco también en modo oscuro), detalle con recarga (bottom sheet) y regenerar con confirmación. Rutas `/clientes/nuevo`, `/clientes/qr` (payload por `extra`, no se persiste), `/clientes/:id`.
