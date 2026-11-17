@@ -1,8 +1,14 @@
+import 'dart:ui' as ui;
+
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:tiquetera/core/theme/app_theme.dart';
 import 'package:tiquetera/features/clientes/domain/cliente_rules.dart';
+import 'package:tiquetera/features/clientes/domain/whatsapp_link.dart';
+import 'package:tiquetera/features/clientes/presentation/clientes_providers.dart';
 import 'package:tiquetera/l10n/gen/app_localizations.dart';
 
 /// Datos que muestra la pantalla QR. El payload no se persiste: solo llega
@@ -14,6 +20,7 @@ class QrArgs {
     required this.saldo,
     required this.fechaVencimiento,
     required this.payload,
+    required this.telefono,
   });
 
   final String clienteId;
@@ -21,12 +28,67 @@ class QrArgs {
   final int saldo;
   final DateTime fechaVencimiento;
   final String payload;
+  final String telefono;
 }
 
-class QrPage extends StatelessWidget {
+class QrPage extends ConsumerStatefulWidget {
   const new({required this.args, super.key});
 
   final QrArgs args;
+
+  @override
+  ConsumerState<QrPage> createState() => _QrPageState();
+}
+
+class _QrPageState extends ConsumerState<QrPage> {
+  final GlobalKey _qrKey = GlobalKey();
+  bool _busy = false;
+
+  QrArgs get args => widget.args;
+
+  Future<void> _share() async {
+    final l10n = AppLocalizations.of(context);
+    final text = l10n.qrShareMessage(
+      args.nombre,
+      args.saldo,
+      ClienteRules.displayDate(args.fechaVencimiento),
+    );
+    setState(() => _busy = true);
+    try {
+      final boundary =
+          _qrKey.currentContext!.findRenderObject()! as RenderRepaintBoundary;
+      final image = await boundary.toImage(pixelRatio: 3);
+      final data = await image.toByteData(format: ui.ImageByteFormat.png);
+      image.dispose();
+      await ref
+          .read(qrShareServiceProvider)
+          .sharePng(data!.buffer.asUint8List(), text: text);
+    } on Exception {
+      _snack(l10n.qrShareError);
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  Future<void> _openChat() async {
+    final l10n = AppLocalizations.of(context);
+    final uri = WhatsAppLink.build(
+      args.telefono,
+      l10n.qrChatMessage(args.nombre),
+    );
+    final ok =
+        uri != null &&
+        await ref
+            .read(qrShareServiceProvider)
+            .openChat(uri)
+            .catchError((Object _) => false);
+    if (!ok) _snack(l10n.qrChatError);
+  }
+
+  void _snack(String msg) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -41,7 +103,10 @@ class QrPage extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Center(
-                child: QrCard(payload: args.payload, nombre: args.nombre),
+                child: RepaintBoundary(
+                  key: _qrKey,
+                  child: QrCard(payload: args.payload, nombre: args.nombre),
+                ),
               ),
               const SizedBox(height: AppSpacing.lg),
               Text(
@@ -63,7 +128,21 @@ class QrPage extends StatelessWidget {
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: AppSpacing.lg),
-              FilledButton(
+              FilledButton.icon(
+                key: const Key('qr_share'),
+                onPressed: _busy ? null : _share,
+                icon: const Icon(Icons.share),
+                label: Text(l10n.qrShareWhatsApp),
+              ),
+              const SizedBox(height: AppSpacing.sm),
+              OutlinedButton.icon(
+                key: const Key('qr_open_chat'),
+                onPressed: _busy ? null : _openChat,
+                icon: const Icon(Icons.chat),
+                label: Text(l10n.qrOpenChat),
+              ),
+              const SizedBox(height: AppSpacing.sm),
+              TextButton(
                 key: const Key('qr_done'),
                 onPressed: () => context.go('/clientes/${args.clienteId}'),
                 child: Text(l10n.qrDone),

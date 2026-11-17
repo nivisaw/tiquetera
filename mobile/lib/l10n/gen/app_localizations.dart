@@ -370,6 +370,42 @@ abstract class AppLocalizations {
   /// **'Listo'**
   String get qrDone;
 
+  /// No description provided for @qrShareWhatsApp.
+  ///
+  /// In es, this message translates to:
+  /// **'Compartir por WhatsApp'**
+  String get qrShareWhatsApp;
+
+  /// No description provided for @qrOpenChat.
+  ///
+  /// In es, this message translates to:
+  /// **'Abrir chat del cliente'**
+  String get qrOpenChat;
+
+  /// No description provided for @qrShareError.
+  ///
+  /// In es, this message translates to:
+  /// **'No se pudo compartir el código QR. Intenta de nuevo.'**
+  String get qrShareError;
+
+  /// No description provided for @qrChatError.
+  ///
+  /// In es, this message translates to:
+  /// **'No se pudo abrir WhatsApp.'**
+  String get qrChatError;
+
+  /// No description provided for @qrShareMessage.
+  ///
+  /// In es, this message translates to:
+  /// **'Hola {nombre}, esta es tu tiquetera de almuerzos. Saldo: {saldo} almuerzos. Vence el {fecha}. Presenta este código QR en caja.'**
+  String qrShareMessage(String nombre, int saldo, String fecha);
+
+  /// No description provided for @qrChatMessage.
+  ///
+  /// In es, this message translates to:
+  /// **'Hola {nombre}, te envío el código QR de tu tiquetera de almuerzos.'**
+  String qrChatMessage(String nombre);
+
   /// No description provided for @detalleTitle.
   ///
   /// In es, this message translates to:
@@ -435,6 +471,138 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Regenerar'**
   String get regenerarConfirm;
+
+  /// No description provided for @escanerPermisoTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Necesitamos la cámara'**
+  String get escanerPermisoTitle;
+
+  /// No description provided for @escanerPermisoBody.
+  ///
+  /// In es, this message translates to:
+  /// **'La cámara se usa solo para leer el código QR de la tiquetera del cliente.'**
+  String get escanerPermisoBody;
+
+  /// No description provided for @escanerPermisoAllow.
+  ///
+  /// In es, this message translates to:
+  /// **'Permitir cámara'**
+  String get escanerPermisoAllow;
+
+  /// No description provided for @escanerPermisoDenied.
+  ///
+  /// In es, this message translates to:
+  /// **'El permiso de cámara está bloqueado. Actívalo en los ajustes del teléfono.'**
+  String get escanerPermisoDenied;
+
+  /// No description provided for @escanerPermisoSettings.
+  ///
+  /// In es, this message translates to:
+  /// **'Abrir ajustes'**
+  String get escanerPermisoSettings;
+
+  /// No description provided for @escanerGuia.
+  ///
+  /// In es, this message translates to:
+  /// **'Apunta al código QR del cliente'**
+  String get escanerGuia;
+
+  /// No description provided for @escanerLinterna.
+  ///
+  /// In es, this message translates to:
+  /// **'Linterna'**
+  String get escanerLinterna;
+
+  /// No description provided for @escanerProcesando.
+  ///
+  /// In es, this message translates to:
+  /// **'Registrando almuerzo…'**
+  String get escanerProcesando;
+
+  /// No description provided for @escanerExito.
+  ///
+  /// In es, this message translates to:
+  /// **'¡Almuerzo registrado!'**
+  String get escanerExito;
+
+  /// No description provided for @escanerSaldoLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'almuerzos restantes'**
+  String get escanerSaldoLabel;
+
+  /// No description provided for @escanerVence.
+  ///
+  /// In es, this message translates to:
+  /// **'Vence el {fecha}'**
+  String escanerVence(String fecha);
+
+  /// No description provided for @escanerTocaParaVolver.
+  ///
+  /// In es, this message translates to:
+  /// **'Toca para escanear otro'**
+  String get escanerTocaParaVolver;
+
+  /// No description provided for @escanerRechazoTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Almuerzo no registrado'**
+  String get escanerRechazoTitle;
+
+  /// No description provided for @rechazoQrInvalido.
+  ///
+  /// In es, this message translates to:
+  /// **'Este código no es una tiquetera válida.'**
+  String get rechazoQrInvalido;
+
+  /// No description provided for @rechazoClienteNoExiste.
+  ///
+  /// In es, this message translates to:
+  /// **'Código desconocido o reemplazado. Pide al cliente su QR más reciente.'**
+  String get rechazoClienteNoExiste;
+
+  /// No description provided for @rechazoClienteInactivo.
+  ///
+  /// In es, this message translates to:
+  /// **'El cliente está inactivo.'**
+  String get rechazoClienteInactivo;
+
+  /// No description provided for @rechazoSinTiquetera.
+  ///
+  /// In es, this message translates to:
+  /// **'El cliente no tiene una tiquetera activa.'**
+  String get rechazoSinTiquetera;
+
+  /// No description provided for @rechazoTiqueteraVencida.
+  ///
+  /// In es, this message translates to:
+  /// **'La tiquetera está vencida.'**
+  String get rechazoTiqueteraVencida;
+
+  /// No description provided for @rechazoSinSaldo.
+  ///
+  /// In es, this message translates to:
+  /// **'La tiquetera no tiene almuerzos disponibles.'**
+  String get rechazoSinSaldo;
+
+  /// No description provided for @rechazoSinRed.
+  ///
+  /// In es, this message translates to:
+  /// **'Sin conexión con el servidor. Escanea de nuevo.'**
+  String get rechazoSinRed;
+
+  /// No description provided for @rechazoDemasiados.
+  ///
+  /// In es, this message translates to:
+  /// **'Demasiados escaneos. Espera un minuto.'**
+  String get rechazoDemasiados;
+
+  /// No description provided for @rechazoError.
+  ///
+  /// In es, this message translates to:
+  /// **'No se pudo registrar. Inténtalo de nuevo.'**
+  String get rechazoError;
 }
 
 class _AppLocalizationsDelegate

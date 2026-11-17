@@ -7,6 +7,8 @@ import 'package:tiquetera/features/auth/data/auth_repository.dart';
 import 'package:tiquetera/features/auth/domain/user.dart';
 import 'package:tiquetera/features/auth/presentation/auth_controller.dart';
 
+import 'features/escaner/camera_fakes.dart';
+
 class _MockRepo extends Mock implements AuthRepository;
 
 void main() {
@@ -20,7 +22,10 @@ void main() {
 
     await tester.pumpWidget(
       ProviderScope(
-        overrides: [authRepositoryProvider.overrideWithValue(repo)],
+        overrides: [
+          authRepositoryProvider.overrideWithValue(repo),
+          deniedCameraOverride,
+        ],
         child: const TiqueteraApp(),
       ),
     );

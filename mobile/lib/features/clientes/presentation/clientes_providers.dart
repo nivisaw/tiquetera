@@ -1,6 +1,7 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:tiquetera/core/providers.dart';
 import 'package:tiquetera/features/clientes/data/clientes_repository.dart';
+import 'package:tiquetera/features/clientes/data/qr_share_service.dart';
 import 'package:tiquetera/features/clientes/domain/cliente.dart';
 
 part 'clientes_providers.g.dart';
@@ -95,3 +96,6 @@ class ClientesList extends _$ClientesList {
 @Riverpod(retry: noRetry)
 Future<Cliente> clienteDetalle(Ref ref, String id) =>
     ref.watch(clientesRepositoryProvider).get(id);
+
+@Riverpod(keepAlive: true)
+QrShareService qrShareService(Ref ref) => const QrShareService();

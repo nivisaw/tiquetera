@@ -5,6 +5,7 @@ import 'package:mocktail/mocktail.dart';
 import 'package:tiquetera/core/providers.dart';
 import 'package:tiquetera/core/theme/app_theme.dart';
 import 'package:tiquetera/features/clientes/data/clientes_repository.dart';
+import 'package:tiquetera/features/clientes/data/qr_share_service.dart';
 import 'package:tiquetera/features/clientes/domain/cliente.dart';
 import 'package:tiquetera/features/clientes/presentation/cliente_detalle_page.dart';
 import 'package:tiquetera/features/clientes/presentation/cliente_form_page.dart';
@@ -84,11 +85,18 @@ Widget harness(String initial, MockClientesRepo repo, {ThemeData? theme}) {
 }
 
 /// Pantalla QR aislada (golden).
-Widget qrHarness(QrArgs args, {ThemeData? theme}) => MaterialApp(
-  debugShowCheckedModeBanner: false,
-  theme: theme ?? AppTheme.light(),
-  locale: const Locale('es', 'CO'),
-  supportedLocales: AppLocalizations.supportedLocales,
-  localizationsDelegates: AppLocalizations.localizationsDelegates,
-  home: QrPage(args: args),
+Widget qrHarness(
+  QrArgs args, {
+  ThemeData? theme,
+  QrShareService share = const QrShareService(),
+}) => ProviderScope(
+  overrides: [qrShareServiceProvider.overrideWithValue(share)],
+  child: MaterialApp(
+    debugShowCheckedModeBanner: false,
+    theme: theme ?? AppTheme.light(),
+    locale: const Locale('es', 'CO'),
+    supportedLocales: AppLocalizations.supportedLocales,
+    localizationsDelegates: AppLocalizations.localizationsDelegates,
+    home: QrPage(args: args),
+  ),
 );

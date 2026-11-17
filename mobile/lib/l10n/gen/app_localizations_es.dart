@@ -163,6 +163,29 @@ class AppLocalizationsEs extends AppLocalizations {
   String get qrDone => 'Listo';
 
   @override
+  String get qrShareWhatsApp => 'Compartir por WhatsApp';
+
+  @override
+  String get qrOpenChat => 'Abrir chat del cliente';
+
+  @override
+  String get qrShareError =>
+      'No se pudo compartir el código QR. Intenta de nuevo.';
+
+  @override
+  String get qrChatError => 'No se pudo abrir WhatsApp.';
+
+  @override
+  String qrShareMessage(String nombre, int saldo, String fecha) {
+    return 'Hola $nombre, esta es tu tiquetera de almuerzos. Saldo: $saldo almuerzos. Vence el $fecha. Presenta este código QR en caja.';
+  }
+
+  @override
+  String qrChatMessage(String nombre) {
+    return 'Hola $nombre, te envío el código QR de tu tiquetera de almuerzos.';
+  }
+
+  @override
   String get detalleTitle => 'Cliente';
 
   @override
@@ -195,4 +218,75 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get regenerarConfirm => 'Regenerar';
+
+  @override
+  String get escanerPermisoTitle => 'Necesitamos la cámara';
+
+  @override
+  String get escanerPermisoBody =>
+      'La cámara se usa solo para leer el código QR de la tiquetera del cliente.';
+
+  @override
+  String get escanerPermisoAllow => 'Permitir cámara';
+
+  @override
+  String get escanerPermisoDenied =>
+      'El permiso de cámara está bloqueado. Actívalo en los ajustes del teléfono.';
+
+  @override
+  String get escanerPermisoSettings => 'Abrir ajustes';
+
+  @override
+  String get escanerGuia => 'Apunta al código QR del cliente';
+
+  @override
+  String get escanerLinterna => 'Linterna';
+
+  @override
+  String get escanerProcesando => 'Registrando almuerzo…';
+
+  @override
+  String get escanerExito => '¡Almuerzo registrado!';
+
+  @override
+  String get escanerSaldoLabel => 'almuerzos restantes';
+
+  @override
+  String escanerVence(String fecha) {
+    return 'Vence el $fecha';
+  }
+
+  @override
+  String get escanerTocaParaVolver => 'Toca para escanear otro';
+
+  @override
+  String get escanerRechazoTitle => 'Almuerzo no registrado';
+
+  @override
+  String get rechazoQrInvalido => 'Este código no es una tiquetera válida.';
+
+  @override
+  String get rechazoClienteNoExiste =>
+      'Código desconocido o reemplazado. Pide al cliente su QR más reciente.';
+
+  @override
+  String get rechazoClienteInactivo => 'El cliente está inactivo.';
+
+  @override
+  String get rechazoSinTiquetera => 'El cliente no tiene una tiquetera activa.';
+
+  @override
+  String get rechazoTiqueteraVencida => 'La tiquetera está vencida.';
+
+  @override
+  String get rechazoSinSaldo => 'La tiquetera no tiene almuerzos disponibles.';
+
+  @override
+  String get rechazoSinRed => 'Sin conexión con el servidor. Escanea de nuevo.';
+
+  @override
+  String get rechazoDemasiados => 'Demasiados escaneos. Espera un minuto.';
+
+  @override
+  String get rechazoError => 'No se pudo registrar. Inténtalo de nuevo.';
 }
