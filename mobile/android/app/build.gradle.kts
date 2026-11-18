@@ -6,7 +6,7 @@ plugins {
 
 android {
     namespace = "co.marvinapps.tiquetera"
-    compileSdk = flutter.compileSdkVersion
+    compileSdk = 37
     ndkVersion = flutter.ndkVersion
 
     compileOptions {

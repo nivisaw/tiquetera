@@ -3,7 +3,7 @@
 Regla: entradas breves (≤ 8 líneas por sesión). Lo más reciente arriba. Solo hechos útiles para el siguiente agente.
 
 ## Estado actual
-- **Siguiente sesión:** S14 (pendiente: prueba de S12 en dispositivo real)
+- **Siguiente sesión:** S14
 - **Bloqueos:** ninguno. iOS en pausa (sin Mac): verificar en Fase 3 con GitHub Actions macOS (simulador) o Codemagic/TestFlight
 
 ## Historial
@@ -18,7 +18,8 @@ Regla: entradas breves (≤ 8 líneas por sesión). Lo más reciente arriba. Sol
 ### S13 — Historial y pulido UX — 2026-11-17 — ✅
 - Hecho: historial en el detalle del cliente (`ClientesRepository.listConsumos`, `Consumo`/`ConsumoPagina`, `ConsumosHistorial` paginado con "Cargar más"; fecha/hora en Bogotá `dd/MM/yyyy HH:mm` vía `ClienteRules.displayDateTimeBogota`; estados cargando/vacío/error+reintentar; se invalida tras recargar). Encabezado con `Semantics(header)`. Textos en ARB.
 - Auditoría UX: sin literales en widgets, IconButtons con tooltip, estados en todas las pantallas. Tests de texto al 200% en 360x640 (clientes listado/form/detalle, QR, resultado del escáner): sin desbordes.
-- Pendiente: prueba S12 en dispositivo real; README.md agregado (usuarios de prueba solo locales).
+- Prueba S12 en dispositivo real (OnePlus CPH2817, Android 16) OK. Ajustes: `compileSdk = 37` (lo exige permission_handler); pantalla siempre encendida en el escáner vía canal nativo `tiquetera/screen` (`ScreenAwake`, sin dependencia nueva; iOS sin probar).
+- Notas: ColorOS rechaza la instalación de `flutter run`; instalar con `adb push` + `pm install -r`. `adb reverse tcp:8088 tcp:8088` se pierde al reconectar USB. README.md agregado (usuarios de prueba solo locales).
 - Verificación: analyze 0; 94/94 tests; cobertura clientes data/domain 100% (sin generados).
 
 ### S12 — Cajero: escáner y feedback — 2026-11-17 — ⚠️
