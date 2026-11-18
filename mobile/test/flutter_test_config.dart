@@ -4,8 +4,9 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 /// Los goldens se generan en Windows y CI corre en Linux: el antialiasing
-/// difiere levemente entre plataformas. Se tolera hasta 1 % de píxeles.
-const double _goldenTolerance = 0.01;
+/// difiere entre plataformas (~1,4 % con títulos en negrita). Se tolera hasta
+/// 2 %: un cambio de color o de layout supera ese umbral con holgura.
+const double _goldenTolerance = 0.02;
 
 Future<void> testExecutable(FutureOr<void> Function() testMain) async {
   final current = goldenFileComparator;

@@ -60,6 +60,7 @@ $C up -d --wait                             # db + api           (make up)
 $C run --rm migrate up                      # migraciones        (make migrate)
 $C run --rm db-app-user                     # contraseña del rol de la API
 $C run --rm --build seed                    # admin inicial      (make seed)
+$C exec -T db sh -c 'psql -U "$POSTGRES_USER" -d "$POSTGRES_DB"' < infra/scripts/seed_demo.sql   # 40 clientes demo (make seed-demo)
 
 curl -s -o /dev/null -w "%{http_code}\n" 127.0.0.1:8088/readyz   # 200
 ```
