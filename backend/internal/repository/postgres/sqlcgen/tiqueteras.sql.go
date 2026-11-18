@@ -13,14 +13,15 @@ import (
 )
 
 const createTiquetera = `-- name: CreateTiquetera :one
-INSERT INTO tiqueteras (cliente_id, almuerzos_comprados, saldo, fecha_vencimiento, created_by)
-VALUES ($1, $2, $3, $4, $5)
-RETURNING id, cliente_id, almuerzos_comprados, saldo, fecha_vencimiento, activa, created_by, created_at, updated_at
+INSERT INTO tiqueteras (cliente_id, almuerzos_comprados, almuerzos_vendidos, saldo, fecha_vencimiento, created_by)
+VALUES ($1, $2, $3, $4, $5, $6)
+RETURNING id, cliente_id, almuerzos_comprados, saldo, fecha_vencimiento, activa, created_by, created_at, updated_at, almuerzos_vendidos
 `
 
 type CreateTiqueteraParams struct {
 	ClienteID          uuid.UUID
 	AlmuerzosComprados int32
+	AlmuerzosVendidos  int32
 	Saldo              int32
 	FechaVencimiento   time.Time
 	CreatedBy          uuid.UUID
@@ -30,6 +31,7 @@ func (q *Queries) CreateTiquetera(ctx context.Context, arg CreateTiqueteraParams
 	row := q.db.QueryRow(ctx, createTiquetera,
 		arg.ClienteID,
 		arg.AlmuerzosComprados,
+		arg.AlmuerzosVendidos,
 		arg.Saldo,
 		arg.FechaVencimiento,
 		arg.CreatedBy,
@@ -45,6 +47,7 @@ func (q *Queries) CreateTiquetera(ctx context.Context, arg CreateTiqueteraParams
 		&i.CreatedBy,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.AlmuerzosVendidos,
 	)
 	return i, err
 }
@@ -69,7 +72,7 @@ WHERE t.cliente_id = $1
   AND t.saldo > 0
   AND t.fecha_vencimiento >= $2::date
   AND EXISTS (SELECT 1 FROM clientes c WHERE c.id = t.cliente_id AND c.activo)
-RETURNING t.id, t.cliente_id, t.almuerzos_comprados, t.saldo, t.fecha_vencimiento, t.activa, t.created_by, t.created_at, t.updated_at
+RETURNING t.id, t.cliente_id, t.almuerzos_comprados, t.saldo, t.fecha_vencimiento, t.activa, t.created_by, t.created_at, t.updated_at, t.almuerzos_vendidos
 `
 
 type DebitTiqueteraParams struct {
@@ -90,12 +93,13 @@ func (q *Queries) DebitTiquetera(ctx context.Context, arg DebitTiqueteraParams) 
 		&i.CreatedBy,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.AlmuerzosVendidos,
 	)
 	return i, err
 }
 
 const getActiveTiqueteraByCliente = `-- name: GetActiveTiqueteraByCliente :one
-SELECT id, cliente_id, almuerzos_comprados, saldo, fecha_vencimiento, activa, created_by, created_at, updated_at FROM tiqueteras WHERE cliente_id = $1 AND activa
+SELECT id, cliente_id, almuerzos_comprados, saldo, fecha_vencimiento, activa, created_by, created_at, updated_at, almuerzos_vendidos FROM tiqueteras WHERE cliente_id = $1 AND activa
 `
 
 func (q *Queries) GetActiveTiqueteraByCliente(ctx context.Context, clienteID uuid.UUID) (Tiquetera, error) {
@@ -111,6 +115,7 @@ func (q *Queries) GetActiveTiqueteraByCliente(ctx context.Context, clienteID uui
 		&i.CreatedBy,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.AlmuerzosVendidos,
 	)
 	return i, err
 }

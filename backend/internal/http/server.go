@@ -26,6 +26,8 @@ type Deps struct {
 	Consumos ConsumoService
 	// Usuarios serves account management.
 	Usuarios UsuarioService
+	// Reportes serves admin reports.
+	Reportes ReporteService
 	// TrustProxyHeaders enables X-Forwarded-For; set it only behind a proxy.
 	TrustProxyHeaders bool
 }
@@ -70,6 +72,7 @@ func NewRouter(d Deps) http.Handler {
 			private.Group(func(admin chi.Router) {
 				admin.Use(RequireRole(domain.RoleAdmin))
 				clientes := &clientesHandler{log: d.Log, svc: d.Clientes}
+				reportes := &reportesHandler{log: d.Log, svc: d.Reportes}
 				admin.Post("/clientes", clientes.create)
 				admin.Get("/clientes", clientes.list)
 				admin.Get("/clientes/{id}", clientes.get)
@@ -77,6 +80,12 @@ func NewRouter(d Deps) http.Handler {
 				admin.Post("/clientes/{id}/tiqueteras", clientes.recharge)
 				admin.Post("/clientes/{id}/qr/regenerar", clientes.regenerateQR)
 				admin.Get("/clientes/{id}/consumos", clientes.listConsumos)
+
+				admin.Get("/reportes/dashboard", reportes.dashboard)
+				admin.Get("/reportes/sin-recarga", reportes.sinRecarga)
+				admin.Get("/reportes/por-vencer", reportes.porVencer)
+				admin.Get("/reportes/saldo-bajo", reportes.saldoBajo)
+				admin.Get("/reportes/consumos", reportes.consumos)
 
 				usuarios := &usuariosHandler{log: d.Log, svc: d.Usuarios}
 				admin.Post("/usuarios", usuarios.create)

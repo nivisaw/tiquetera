@@ -13,7 +13,7 @@ linters:
     - misspell
   settings:
     misspell:
-      ignore-rules: [clientes]
+      ignore-rules: [clientes, reportes]
   exclusions:
     rules:
       - path: _test\.go

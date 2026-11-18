@@ -80,6 +80,7 @@ type Tiquetera struct {
 	ID                 uuid.UUID
 	ClienteID          uuid.UUID
 	AlmuerzosComprados int32
+	AlmuerzosVendidos  int32
 	Saldo              int32
 	FechaVencimiento   time.Time
 	Activa             bool

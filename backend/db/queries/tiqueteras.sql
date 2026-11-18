@@ -1,6 +1,6 @@
 -- name: CreateTiquetera :one
-INSERT INTO tiqueteras (cliente_id, almuerzos_comprados, saldo, fecha_vencimiento, created_by)
-VALUES ($1, $2, $3, $4, $5)
+INSERT INTO tiqueteras (cliente_id, almuerzos_comprados, almuerzos_vendidos, saldo, fecha_vencimiento, created_by)
+VALUES ($1, $2, $3, $4, $5, $6)
 RETURNING *;
 
 -- name: GetActiveTiqueteraByCliente :one

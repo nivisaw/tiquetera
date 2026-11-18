@@ -309,4 +309,160 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get rechazoError => 'No se pudo registrar. Inténtalo de nuevo.';
+
+  @override
+  String get reportesTitle => 'Reportes';
+
+  @override
+  String get dashConsumosHoy => 'Almuerzos servidos hoy';
+
+  @override
+  String get dashClientesVigentes => 'Clientes con tiquetera vigente';
+
+  @override
+  String get dashSaldoPendiente => 'Almuerzos prepagados por servir';
+
+  @override
+  String get dashVendidosMes => 'Almuerzos vendidos este mes';
+
+  @override
+  String get dashPorVencer => 'Tiqueteras que vencen en 7 días';
+
+  @override
+  String get dashRechazosHoy => 'Escaneos rechazados hoy';
+
+  @override
+  String get dashUltimos7 => 'Almuerzos servidos, últimos 7 días';
+
+  @override
+  String dashBarra(String fecha, int total) {
+    return '$fecha: $total almuerzos';
+  }
+
+  @override
+  String get reporteSinRecargaTitle => 'Sin recarga';
+
+  @override
+  String get reporteSinRecargaDesc => 'Clientes que hace tiempo no recargan';
+
+  @override
+  String get reportePorVencerTitle => 'Por vencer';
+
+  @override
+  String get reportePorVencerDesc =>
+      'Tiqueteras con almuerzos que vencen pronto';
+
+  @override
+  String get reporteSaldoBajoTitle => 'Saldo bajo';
+
+  @override
+  String get reporteSaldoBajoDesc =>
+      'Clientes a punto de quedarse sin almuerzos';
+
+  @override
+  String get reporteConsumosTitle => 'Consumos por día';
+
+  @override
+  String get reporteConsumosDesc => 'Cuadre de caja por día y por cajero';
+
+  @override
+  String get filtroSinRecarga => 'Sin recargar hace al menos';
+
+  @override
+  String get filtroPorVencer => 'Vencen en los próximos';
+
+  @override
+  String get filtroSaldoBajo => 'Saldo de máximo';
+
+  @override
+  String filtroDias(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$n días',
+      one: '1 día',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String filtroAlmuerzos(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$n almuerzos',
+      one: '1 almuerzo',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String itemUltimaRecarga(String fecha) {
+    return 'Última recarga: $fecha';
+  }
+
+  @override
+  String itemVence(String fecha) {
+    return 'Vence: $fecha';
+  }
+
+  @override
+  String get reporteEmpty => 'No hay clientes en este reporte.';
+
+  @override
+  String reporteTotal(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$n clientes',
+      one: '1 cliente',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String msgSinRecarga(String nombre) {
+    return 'Hola $nombre, te extrañamos en el restaurante. ¿Quieres recargar tu tiquetera de almuerzos?';
+  }
+
+  @override
+  String msgPorVencer(String nombre, String fecha, int saldo) {
+    return 'Hola $nombre, tu tiquetera vence el $fecha y aún tienes $saldo almuerzos. ¡Aprovéchalos!';
+  }
+
+  @override
+  String msgSaldoBajo(String nombre, int saldo) {
+    return 'Hola $nombre, te quedan $saldo almuerzos en tu tiquetera. ¿Quieres recargar?';
+  }
+
+  @override
+  String consumosRango(String desde, String hasta) {
+    return 'Del $desde al $hasta';
+  }
+
+  @override
+  String get consumosCambiarRango => 'Cambiar fechas';
+
+  @override
+  String get consumosRangoInvalido => 'El rango no puede superar 31 días.';
+
+  @override
+  String consumosTotal(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$n almuerzos servidos',
+      one: '1 almuerzo servido',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get consumosPorDia => 'Por día';
+
+  @override
+  String get consumosPorCajero => 'Por cajero';
+
+  @override
+  String get consumosSinDatos => 'No hubo consumos en este rango.';
 }

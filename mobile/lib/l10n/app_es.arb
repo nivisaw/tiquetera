@@ -143,5 +143,133 @@
   "rechazoSinSaldo": "La tiquetera no tiene almuerzos disponibles.",
   "rechazoSinRed": "Sin conexión con el servidor. Escanea de nuevo.",
   "rechazoDemasiados": "Demasiados escaneos. Espera un minuto.",
-  "rechazoError": "No se pudo registrar. Inténtalo de nuevo."
+  "rechazoError": "No se pudo registrar. Inténtalo de nuevo.",
+  "reportesTitle": "Reportes",
+  "dashConsumosHoy": "Almuerzos servidos hoy",
+  "dashClientesVigentes": "Clientes con tiquetera vigente",
+  "dashSaldoPendiente": "Almuerzos prepagados por servir",
+  "dashVendidosMes": "Almuerzos vendidos este mes",
+  "dashPorVencer": "Tiqueteras que vencen en 7 días",
+  "dashRechazosHoy": "Escaneos rechazados hoy",
+  "dashUltimos7": "Almuerzos servidos, últimos 7 días",
+  "dashBarra": "{fecha}: {total} almuerzos",
+  "@dashBarra": {
+    "placeholders": {
+      "fecha": {
+        "type": "String"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "reporteSinRecargaTitle": "Sin recarga",
+  "reporteSinRecargaDesc": "Clientes que hace tiempo no recargan",
+  "reportePorVencerTitle": "Por vencer",
+  "reportePorVencerDesc": "Tiqueteras con almuerzos que vencen pronto",
+  "reporteSaldoBajoTitle": "Saldo bajo",
+  "reporteSaldoBajoDesc": "Clientes a punto de quedarse sin almuerzos",
+  "reporteConsumosTitle": "Consumos por día",
+  "reporteConsumosDesc": "Cuadre de caja por día y por cajero",
+  "filtroSinRecarga": "Sin recargar hace al menos",
+  "filtroPorVencer": "Vencen en los próximos",
+  "filtroSaldoBajo": "Saldo de máximo",
+  "filtroDias": "{n, plural, =1{1 día} other{{n} días}}",
+  "@filtroDias": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "filtroAlmuerzos": "{n, plural, =1{1 almuerzo} other{{n} almuerzos}}",
+  "@filtroAlmuerzos": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "itemUltimaRecarga": "Última recarga: {fecha}",
+  "@itemUltimaRecarga": {
+    "placeholders": {
+      "fecha": {
+        "type": "String"
+      }
+    }
+  },
+  "itemVence": "Vence: {fecha}",
+  "@itemVence": {
+    "placeholders": {
+      "fecha": {
+        "type": "String"
+      }
+    }
+  },
+  "reporteEmpty": "No hay clientes en este reporte.",
+  "reporteTotal": "{n, plural, =1{1 cliente} other{{n} clientes}}",
+  "@reporteTotal": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "msgSinRecarga": "Hola {nombre}, te extrañamos en el restaurante. ¿Quieres recargar tu tiquetera de almuerzos?",
+  "@msgSinRecarga": {
+    "placeholders": {
+      "nombre": {
+        "type": "String"
+      }
+    }
+  },
+  "msgPorVencer": "Hola {nombre}, tu tiquetera vence el {fecha} y aún tienes {saldo} almuerzos. ¡Aprovéchalos!",
+  "@msgPorVencer": {
+    "placeholders": {
+      "nombre": {
+        "type": "String"
+      },
+      "fecha": {
+        "type": "String"
+      },
+      "saldo": {
+        "type": "int"
+      }
+    }
+  },
+  "msgSaldoBajo": "Hola {nombre}, te quedan {saldo} almuerzos en tu tiquetera. ¿Quieres recargar?",
+  "@msgSaldoBajo": {
+    "placeholders": {
+      "nombre": {
+        "type": "String"
+      },
+      "saldo": {
+        "type": "int"
+      }
+    }
+  },
+  "consumosRango": "Del {desde} al {hasta}",
+  "@consumosRango": {
+    "placeholders": {
+      "desde": {
+        "type": "String"
+      },
+      "hasta": {
+        "type": "String"
+      }
+    }
+  },
+  "consumosCambiarRango": "Cambiar fechas",
+  "consumosRangoInvalido": "El rango no puede superar 31 días.",
+  "consumosTotal": "{n, plural, =1{1 almuerzo servido} other{{n} almuerzos servidos}}",
+  "@consumosTotal": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "consumosPorDia": "Por día",
+  "consumosPorCajero": "Por cajero",
+  "consumosSinDatos": "No hubo consumos en este rango."
 }

@@ -64,6 +64,7 @@ func run() error {
 		Clientes:          service.NewClienteService(postgres.NewClienteRepository(pool), clock),
 		Consumos:          service.NewConsumoService(postgres.NewConsumoRepository(pool), clock),
 		Usuarios:          service.NewUsuarioService(postgres.NewUsuarioRepository(pool), clock),
+		Reportes:          service.NewReporteService(postgres.NewReporteRepository(pool), clock),
 		TrustProxyHeaders: cfg.TrustProxyHeaders,
 	}))
 

@@ -3,7 +3,7 @@
 Regla: entradas breves (≤ 8 líneas por sesión). Lo más reciente arriba. Solo hechos útiles para el siguiente agente.
 
 ## Estado actual
-- **Siguiente sesión:** S13B (dashboard y reportes del admin, aprobada 2026-11-18), luego S14
+- **Siguiente sesión:** S14
 - **Bloqueos:** ninguno. iOS en pausa (sin Mac): verificar en Fase 3 con GitHub Actions macOS (simulador) o Codemagic/TestFlight
 
 ## Historial
@@ -14,6 +14,12 @@ Regla: entradas breves (≤ 8 líneas por sesión). Lo más reciente arriba. Sol
 - Pendiente/deuda:
 - Comandos de verificación:
 -->
+
+### S13B — Admin: dashboard y reportes — 2026-11-18 — ✅
+- Backend: migración 0006 (`tiqueteras.almuerzos_vendidos` con backfill = comprados − saldo de la tiquetera anterior; índices por fecha en tiqueteras/consumos/rechazos). `ReporteService` + `ReporteRepository` + `/v1/reportes/{dashboard,sin-recarga,por-vencer,saldo-bajo,consumos}` solo admin. Rangos de instantes [inicio, fin) calculados en Go con el día de Bogotá (`domain.BogotaDayStart`); agrupación por día con `AT TIME ZONE 'America/Bogota'`.
+- Móvil: `features/reportes` (dashboard con 6 cifras + barras de 7 días sin librería de gráficos; listados con filtros por chips, "Cargar más", tocar → detalle, botón chat wa.me con mensaje por reporte; consumos por rango ≤ 31 días con `showDateRangePicker`). Acceso: icono "Reportes" en el AppBar de clientes; ruta `/reportes` solo admin.
+- Decisiones: parámetros de reporte fuera de rango → 422; paginación inválida → 400 (como el resto). `misspell` ignora `reportes`.
+- Verificación: backend lint 0, tests verdes (domain 98.6%, service 94.1%, http 96.6%); móvil analyze 0, 114/114, reportes data/domain 100%. Texto 200% sin desbordes. `qr_page_test` falló una vez en suite completa y pasó aislado y en 2 corridas siguientes (posible flake).
 
 ### S13 — Historial y pulido UX — 2026-11-17 — ✅
 - Hecho: historial en el detalle del cliente (`ClientesRepository.listConsumos`, `Consumo`/`ConsumoPagina`, `ConsumosHistorial` paginado con "Cargar más"; fecha/hora en Bogotá `dd/MM/yyyy HH:mm` vía `ClienteRules.displayDateTimeBogota`; estados cargando/vacío/error+reintentar; se invalida tras recargar). Encabezado con `Semantics(header)`. Textos en ARB.

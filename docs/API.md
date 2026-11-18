@@ -70,7 +70,7 @@ Solo rol `admin` (cajero 403). Fechas `YYYY-MM-DD`, "hoy" y rangos en America/Bo
 | GET | /reportes/saldo-bajo?max=3&page=&size= | `items[]`: `{cliente_id, nombre, telefono, saldo, fecha_vencimiento}`; menor saldo primero. `max` 0..50 |
 | GET | /reportes/consumos?desde=&hasta=&cajero_id= | `{total, dias: [{fecha, total}], cajeros: [{cajero_id, nombre, total}]}`; rango ≤ 31 días |
 
-Definiciones: *vigente* = tiquetera activa con `fecha_vencimiento >= hoy`. *saldo_pendiente* = suma de saldos vigentes. *vendidos_mes* = suma de `almuerzos_vendidos` (solo lo nuevo, sin el saldo arrastrado) de tiqueteras creadas en el mes en curso. *sin-recarga*: clientes activos cuya tiquetera más reciente tiene `created_at` ≤ hoy − `dias`.
+Definiciones: *vigente* = tiquetera activa con `fecha_vencimiento >= hoy`. *saldo_pendiente* = suma de saldos vigentes. *vendidos_mes* = suma de `almuerzos_vendidos` (solo lo nuevo, sin el saldo arrastrado) de tiqueteras creadas en el mes en curso. *sin-recarga*: clientes activos cuya tiquetera activa se creó en una fecha (Bogotá) ≤ hoy − `dias`.
 Errores: parámetro inválido o rango > 31 días 422 `VALIDATION_ERROR`.
 
 ## Salud

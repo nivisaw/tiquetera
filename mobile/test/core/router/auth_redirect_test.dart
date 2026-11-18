@@ -36,12 +36,15 @@ void main() {
     expect(go(AppRoutes.escaner, user: _admin), AppRoutes.clientes);
     expect(go(AppRoutes.clientes, user: _admin), isNull);
     expect(go('${AppRoutes.clientes}/abc', user: _admin), isNull);
+    expect(go(AppRoutes.reportes, user: _admin), isNull);
+    expect(go('${AppRoutes.reportes}/sin-recarga', user: _admin), isNull);
   });
 
   test('TestAuthRedirect_Cajero_HomeEscanerAndNoClientes', () {
     expect(go(AppRoutes.login, user: _cajero), AppRoutes.escaner);
     expect(go(AppRoutes.clientes, user: _cajero), AppRoutes.escaner);
     expect(go('${AppRoutes.clientes}/abc', user: _cajero), AppRoutes.escaner);
+    expect(go(AppRoutes.reportes, user: _cajero), AppRoutes.escaner);
     expect(go(AppRoutes.escaner, user: _cajero), isNull);
   });
 }
