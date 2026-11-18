@@ -80,6 +80,7 @@ type Tiquetera struct {
 	CreatedBy          uuid.UUID
 	CreatedAt          pgtype.Timestamptz
 	UpdatedAt          pgtype.Timestamptz
+	AlmuerzosVendidos  int32
 }
 
 type Usuario struct {

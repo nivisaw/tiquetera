@@ -35,7 +35,8 @@ Una tiquetera **activa** por cliente (índice parcial `UNIQUE (cliente_id) WHERE
 |---|---|---|
 | id | uuid PK | |
 | cliente_id | uuid FK | |
-| almuerzos_comprados | int CHECK (> 0 AND <= 500) | |
+| almuerzos_comprados | int CHECK (> 0 AND <= 500) | incluye el saldo arrastrado de la recarga |
+| almuerzos_vendidos | int CHECK (> 0 AND <= almuerzos_comprados) | solo lo vendido en esta recarga (reportes); migración 0006 |
 | saldo | int CHECK (saldo >= 0) | |
 | fecha_vencimiento | date NOT NULL | |
 | activa | bool | al crear una nueva, la anterior se desactiva |

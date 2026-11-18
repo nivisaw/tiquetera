@@ -10,6 +10,10 @@ import 'package:tiquetera/features/clientes/presentation/cliente_form_page.dart'
 import 'package:tiquetera/features/clientes/presentation/clientes_page.dart';
 import 'package:tiquetera/features/clientes/presentation/qr_page.dart';
 import 'package:tiquetera/features/escaner/presentation/escaner_page.dart';
+import 'package:tiquetera/features/reportes/domain/reportes.dart';
+import 'package:tiquetera/features/reportes/presentation/consumos_reporte_page.dart';
+import 'package:tiquetera/features/reportes/presentation/reporte_clientes_page.dart';
+import 'package:tiquetera/features/reportes/presentation/reportes_page.dart';
 
 part 'app_router.g.dart';
 
@@ -18,10 +22,11 @@ abstract final class AppRoutes {
   static const login = '/login';
   static const clientes = '/clientes';
   static const escaner = '/escaner';
+  static const reportes = '/reportes';
 }
 
 const Map<Role, Set<String>> _roleRoutes = {
-  Role.admin: {AppRoutes.clientes},
+  Role.admin: {AppRoutes.clientes, AppRoutes.reportes},
   Role.cajero: {AppRoutes.escaner},
 };
 
@@ -83,6 +88,26 @@ GoRouter appRouter(Ref ref) {
         ],
       ),
       GoRoute(path: AppRoutes.escaner, builder: (_, _) => const EscanerPage()),
+      GoRoute(
+        path: AppRoutes.reportes,
+        builder: (_, _) => const ReportesPage(),
+        routes: [
+          GoRoute(
+            path: 'consumos',
+            builder: (_, _) => const ConsumosReportePage(),
+          ),
+          GoRoute(
+            path: ':tipo',
+            redirect: (_, state) =>
+                ReporteTipo.fromPath(state.pathParameters['tipo']!) == null
+                ? AppRoutes.reportes
+                : null,
+            builder: (_, state) => ReporteClientesPage(
+              tipo: ReporteTipo.fromPath(state.pathParameters['tipo']!)!,
+            ),
+          ),
+        ],
+      ),
     ],
   );
 }

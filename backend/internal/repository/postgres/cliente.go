@@ -145,6 +145,7 @@ func (r *ClienteRepository) CreateTiquetera(ctx context.Context, t domain.Tiquet
 	row, err := r.q.CreateTiquetera(ctx, sqlcgen.CreateTiqueteraParams{
 		ClienteID:          t.ClienteID,
 		AlmuerzosComprados: t.AlmuerzosComprados,
+		AlmuerzosVendidos:  t.AlmuerzosVendidos,
 		Saldo:              t.Saldo,
 		FechaVencimiento:   t.FechaVencimiento,
 		CreatedBy:          actor,
@@ -213,6 +214,7 @@ func toTiquetera(row sqlcgen.Tiquetera) domain.Tiquetera {
 		ID:                 row.ID,
 		ClienteID:          row.ClienteID,
 		AlmuerzosComprados: row.AlmuerzosComprados,
+		AlmuerzosVendidos:  row.AlmuerzosVendidos,
 		Saldo:              row.Saldo,
 		FechaVencimiento:   row.FechaVencimiento,
 		Activa:             row.Activa,

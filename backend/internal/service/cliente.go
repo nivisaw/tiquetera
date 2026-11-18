@@ -70,7 +70,7 @@ func (s *ClienteService) Create(ctx context.Context, actor uuid.UUID, data domai
 		if result.Cliente, txErr = tx.CreateCliente(ctx, data, hash, actor); txErr != nil {
 			return txErr
 		}
-		if result.Tiquetera, txErr = createTiquetera(ctx, tx, result.Cliente.ID, input.Almuerzos, fecha, actor); txErr != nil {
+		if result.Tiquetera, txErr = createTiquetera(ctx, tx, result.Cliente.ID, input.Almuerzos, input.Almuerzos, fecha, actor); txErr != nil {
 			return txErr
 		}
 		return auditCliente(ctx, tx, actor, domain.AuditClienteCreated, domain.AuditEntityCliente, result.Cliente.ID)
@@ -168,7 +168,7 @@ func (s *ClienteService) Recharge(ctx context.Context, actor, id uuid.UUID, inpu
 		if total > domain.MaxAlmuerzos {
 			return domain.ValidationError{Message: "La recarga más el saldo actual no puede superar 500 almuerzos"}
 		}
-		if created, txErr = createTiquetera(ctx, tx, id, total, fecha, actor); txErr != nil {
+		if created, txErr = createTiquetera(ctx, tx, id, total, input.Almuerzos, fecha, actor); txErr != nil {
 			return txErr
 		}
 		return auditCliente(ctx, tx, actor, domain.AuditTiqueteraCreated, domain.AuditEntityTiquetera, created.ID)
@@ -194,11 +194,12 @@ func (s *ClienteService) RegenerateQR(ctx context.Context, actor, id uuid.UUID) 
 	return payload, nil
 }
 
-func createTiquetera(ctx context.Context, tx ClienteRepository, clienteID uuid.UUID, almuerzos int, fecha time.Time, actor uuid.UUID) (domain.Tiquetera, error) {
+func createTiquetera(ctx context.Context, tx ClienteRepository, clienteID uuid.UUID, almuerzos, vendidos int, fecha time.Time, actor uuid.UUID) (domain.Tiquetera, error) {
 	count := int32(almuerzos) // #nosec G115 -- validated range 1..500
 	return tx.CreateTiquetera(ctx, domain.Tiquetera{
 		ClienteID:          clienteID,
 		AlmuerzosComprados: count,
+		AlmuerzosVendidos:  int32(vendidos), // #nosec G115 -- validated range 1..500
 		Saldo:              count,
 		FechaVencimiento:   fecha,
 	}, actor)

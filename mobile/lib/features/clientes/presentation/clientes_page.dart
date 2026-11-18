@@ -44,7 +44,15 @@ class _ClientesPageState extends ConsumerState<ClientesPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(l10n.clientesTitle),
-        actions: const [LogoutButton()],
+        actions: [
+          IconButton(
+            key: const Key('clientes_reportes'),
+            tooltip: l10n.reportesTitle,
+            icon: const Icon(Icons.insights),
+            onPressed: () => context.push('/reportes'),
+          ),
+          const LogoutButton(),
+        ],
       ),
       floatingActionButton: FloatingActionButton.extended(
         key: const Key('clientes_new'),

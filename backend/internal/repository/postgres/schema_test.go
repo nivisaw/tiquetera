@@ -52,10 +52,34 @@ func TestSchema_MigrateUpDownUp_LeavesExpectedTables(t *testing.T) {
 	assert.ErrorIs(t, m.Up(), migrate.ErrNoChange)
 }
 
+func TestSchema_Migration0006_BackfillsVendidosWithoutCarriedBalance(t *testing.T) {
+	ctx, ownerURL, _ := startDB(t)
+	conn := connect(ctx, t, ownerURL)
+	m := newMigrator(t, ownerURL)
+	require.NoError(t, m.Migrate(5))
+
+	var usuario, cliente uuid.UUID
+	require.NoError(t, conn.QueryRow(ctx,
+		`INSERT INTO usuarios (username, password_hash, nombre, rol) VALUES ('adm', 'x', 'Adm', 'admin') RETURNING id`).Scan(&usuario))
+	require.NoError(t, conn.QueryRow(ctx,
+		`INSERT INTO clientes (nombre, telefono, qr_token_hash, created_by) VALUES ('Ana', '+573001234567', $1, $2) RETURNING id`,
+		make([]byte, 32), usuario).Scan(&cliente))
+	_, err := conn.Exec(ctx, `INSERT INTO tiqueteras (cliente_id, almuerzos_comprados, saldo, fecha_vencimiento, activa, created_by, created_at)
+		VALUES ($1, 20, 4, '2030-01-01', false, $2, '2026-10-01'), ($1, 14, 14, '2030-01-01', true, $2, '2026-11-01')`, cliente, usuario)
+	require.NoError(t, err)
+
+	require.NoError(t, m.Up())
+	rows, err := conn.Query(ctx, `SELECT almuerzos_vendidos FROM tiqueteras ORDER BY created_at`)
+	require.NoError(t, err)
+	vendidos, err := pgx.CollectRows(rows, pgx.RowTo[int32])
+	require.NoError(t, err)
+	assert.Equal(t, []int32{20, 10}, vendidos)
+}
+
 func TestSchema_InvalidWrites_AreRejected(t *testing.T) {
 	f := setup(t)
-	ins := `INSERT INTO tiqueteras (cliente_id, almuerzos_comprados, saldo, fecha_vencimiento, activa, created_by)
-	        VALUES ($1, $2, $3, '2030-01-01', $4, $5)`
+	ins := `INSERT INTO tiqueteras (cliente_id, almuerzos_comprados, almuerzos_vendidos, saldo, fecha_vencimiento, activa, created_by)
+	        VALUES ($1, $2, $2, $3, '2030-01-01', $4, $5)`
 	insCliente := `INSERT INTO clientes (nombre, telefono, qr_token_hash, created_by) VALUES ($1, $2, $3, $4)`
 	hash := make([]byte, 32)
 	hash[0] = 9
@@ -70,6 +94,8 @@ func TestSchema_InvalidWrites_AreRejected(t *testing.T) {
 		{"saldo mayor a comprados", codeCheckViolation, `UPDATE tiqueteras SET saldo = 11 WHERE id = $1`, []any{f.tiquetera}},
 		{"segunda tiquetera activa", codeUniqueViolation, ins, []any{f.clienteID, 5, 5, true, f.usuarioID}},
 		{"almuerzos en cero", codeCheckViolation, ins, []any{f.clienteID, 0, 0, false, f.usuarioID}},
+		{"vendidos mayor a comprados", codeCheckViolation, `UPDATE tiqueteras SET almuerzos_vendidos = 11 WHERE id = $1`, []any{f.tiquetera}},
+		{"vendidos en cero", codeCheckViolation, `UPDATE tiqueteras SET almuerzos_vendidos = 0 WHERE id = $1`, []any{f.tiquetera}},
 		{"almuerzos sobre 500", codeCheckViolation, ins, []any{f.clienteID, 501, 501, false, f.usuarioID}},
 		{"telefono no E164", codeCheckViolation, insCliente, []any{"Ana", "3001234567", hash, f.usuarioID}},
 		{"telefono repetido", codeUniqueViolation, insCliente, []any{"Ana", "+573001234567", hash, f.usuarioID}},
@@ -211,8 +237,8 @@ func setup(t *testing.T) fixture {
 		make([]byte, 32), f.usuarioID,
 	).Scan(&f.clienteID))
 	require.NoError(t, owner.QueryRow(ctx,
-		`INSERT INTO tiqueteras (cliente_id, almuerzos_comprados, saldo, fecha_vencimiento, created_by)
-		 VALUES ($1, 10, 10, '2030-01-01', $2) RETURNING id`,
+		`INSERT INTO tiqueteras (cliente_id, almuerzos_comprados, almuerzos_vendidos, saldo, fecha_vencimiento, created_by)
+		 VALUES ($1, 10, 10, 10, '2030-01-01', $2) RETURNING id`,
 		f.clienteID, f.usuarioID,
 	).Scan(&f.tiquetera))
 	return f

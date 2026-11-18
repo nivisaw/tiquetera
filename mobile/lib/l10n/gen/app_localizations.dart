@@ -627,6 +627,222 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'No se pudo registrar. Inténtalo de nuevo.'**
   String get rechazoError;
+
+  /// No description provided for @reportesTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Reportes'**
+  String get reportesTitle;
+
+  /// No description provided for @dashConsumosHoy.
+  ///
+  /// In es, this message translates to:
+  /// **'Almuerzos servidos hoy'**
+  String get dashConsumosHoy;
+
+  /// No description provided for @dashClientesVigentes.
+  ///
+  /// In es, this message translates to:
+  /// **'Clientes con tiquetera vigente'**
+  String get dashClientesVigentes;
+
+  /// No description provided for @dashSaldoPendiente.
+  ///
+  /// In es, this message translates to:
+  /// **'Almuerzos prepagados por servir'**
+  String get dashSaldoPendiente;
+
+  /// No description provided for @dashVendidosMes.
+  ///
+  /// In es, this message translates to:
+  /// **'Almuerzos vendidos este mes'**
+  String get dashVendidosMes;
+
+  /// No description provided for @dashPorVencer.
+  ///
+  /// In es, this message translates to:
+  /// **'Tiqueteras que vencen en 7 días'**
+  String get dashPorVencer;
+
+  /// No description provided for @dashRechazosHoy.
+  ///
+  /// In es, this message translates to:
+  /// **'Escaneos rechazados hoy'**
+  String get dashRechazosHoy;
+
+  /// No description provided for @dashUltimos7.
+  ///
+  /// In es, this message translates to:
+  /// **'Almuerzos servidos, últimos 7 días'**
+  String get dashUltimos7;
+
+  /// No description provided for @dashBarra.
+  ///
+  /// In es, this message translates to:
+  /// **'{fecha}: {total} almuerzos'**
+  String dashBarra(String fecha, int total);
+
+  /// No description provided for @reporteSinRecargaTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Sin recarga'**
+  String get reporteSinRecargaTitle;
+
+  /// No description provided for @reporteSinRecargaDesc.
+  ///
+  /// In es, this message translates to:
+  /// **'Clientes que hace tiempo no recargan'**
+  String get reporteSinRecargaDesc;
+
+  /// No description provided for @reportePorVencerTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Por vencer'**
+  String get reportePorVencerTitle;
+
+  /// No description provided for @reportePorVencerDesc.
+  ///
+  /// In es, this message translates to:
+  /// **'Tiqueteras con almuerzos que vencen pronto'**
+  String get reportePorVencerDesc;
+
+  /// No description provided for @reporteSaldoBajoTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Saldo bajo'**
+  String get reporteSaldoBajoTitle;
+
+  /// No description provided for @reporteSaldoBajoDesc.
+  ///
+  /// In es, this message translates to:
+  /// **'Clientes a punto de quedarse sin almuerzos'**
+  String get reporteSaldoBajoDesc;
+
+  /// No description provided for @reporteConsumosTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Consumos por día'**
+  String get reporteConsumosTitle;
+
+  /// No description provided for @reporteConsumosDesc.
+  ///
+  /// In es, this message translates to:
+  /// **'Cuadre de caja por día y por cajero'**
+  String get reporteConsumosDesc;
+
+  /// No description provided for @filtroSinRecarga.
+  ///
+  /// In es, this message translates to:
+  /// **'Sin recargar hace al menos'**
+  String get filtroSinRecarga;
+
+  /// No description provided for @filtroPorVencer.
+  ///
+  /// In es, this message translates to:
+  /// **'Vencen en los próximos'**
+  String get filtroPorVencer;
+
+  /// No description provided for @filtroSaldoBajo.
+  ///
+  /// In es, this message translates to:
+  /// **'Saldo de máximo'**
+  String get filtroSaldoBajo;
+
+  /// No description provided for @filtroDias.
+  ///
+  /// In es, this message translates to:
+  /// **'{n, plural, =1{1 día} other{{n} días}}'**
+  String filtroDias(int n);
+
+  /// No description provided for @filtroAlmuerzos.
+  ///
+  /// In es, this message translates to:
+  /// **'{n, plural, =1{1 almuerzo} other{{n} almuerzos}}'**
+  String filtroAlmuerzos(int n);
+
+  /// No description provided for @itemUltimaRecarga.
+  ///
+  /// In es, this message translates to:
+  /// **'Última recarga: {fecha}'**
+  String itemUltimaRecarga(String fecha);
+
+  /// No description provided for @itemVence.
+  ///
+  /// In es, this message translates to:
+  /// **'Vence: {fecha}'**
+  String itemVence(String fecha);
+
+  /// No description provided for @reporteEmpty.
+  ///
+  /// In es, this message translates to:
+  /// **'No hay clientes en este reporte.'**
+  String get reporteEmpty;
+
+  /// No description provided for @reporteTotal.
+  ///
+  /// In es, this message translates to:
+  /// **'{n, plural, =1{1 cliente} other{{n} clientes}}'**
+  String reporteTotal(int n);
+
+  /// No description provided for @msgSinRecarga.
+  ///
+  /// In es, this message translates to:
+  /// **'Hola {nombre}, te extrañamos en el restaurante. ¿Quieres recargar tu tiquetera de almuerzos?'**
+  String msgSinRecarga(String nombre);
+
+  /// No description provided for @msgPorVencer.
+  ///
+  /// In es, this message translates to:
+  /// **'Hola {nombre}, tu tiquetera vence el {fecha} y aún tienes {saldo} almuerzos. ¡Aprovéchalos!'**
+  String msgPorVencer(String nombre, String fecha, int saldo);
+
+  /// No description provided for @msgSaldoBajo.
+  ///
+  /// In es, this message translates to:
+  /// **'Hola {nombre}, te quedan {saldo} almuerzos en tu tiquetera. ¿Quieres recargar?'**
+  String msgSaldoBajo(String nombre, int saldo);
+
+  /// No description provided for @consumosRango.
+  ///
+  /// In es, this message translates to:
+  /// **'Del {desde} al {hasta}'**
+  String consumosRango(String desde, String hasta);
+
+  /// No description provided for @consumosCambiarRango.
+  ///
+  /// In es, this message translates to:
+  /// **'Cambiar fechas'**
+  String get consumosCambiarRango;
+
+  /// No description provided for @consumosRangoInvalido.
+  ///
+  /// In es, this message translates to:
+  /// **'El rango no puede superar 31 días.'**
+  String get consumosRangoInvalido;
+
+  /// No description provided for @consumosTotal.
+  ///
+  /// In es, this message translates to:
+  /// **'{n, plural, =1{1 almuerzo servido} other{{n} almuerzos servidos}}'**
+  String consumosTotal(int n);
+
+  /// No description provided for @consumosPorDia.
+  ///
+  /// In es, this message translates to:
+  /// **'Por día'**
+  String get consumosPorDia;
+
+  /// No description provided for @consumosPorCajero.
+  ///
+  /// In es, this message translates to:
+  /// **'Por cajero'**
+  String get consumosPorCajero;
+
+  /// No description provided for @consumosSinDatos.
+  ///
+  /// In es, this message translates to:
+  /// **'No hubo consumos en este rango.'**
+  String get consumosSinDatos;
 }
 
 class _AppLocalizationsDelegate
