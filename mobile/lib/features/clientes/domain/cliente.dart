@@ -90,3 +90,30 @@ String formatApiDate(DateTime d) =>
     '${d.year.toString().padLeft(4, '0')}-'
     '${d.month.toString().padLeft(2, '0')}-'
     '${d.day.toString().padLeft(2, '0')}';
+
+/// Consumo del historial (`GET /clientes/{id}/consumos`).
+class Consumo {
+  const new({
+    required this.id,
+    required this.fechaHora,
+    required this.saldoResultante,
+  });
+
+  factory fromJson(Map<String, dynamic> json) => Consumo(
+    id: json['id'] as String,
+    fechaHora: DateTime.parse(json['fecha_hora'] as String).toUtc(),
+    saldoResultante: json['saldo_resultante'] as int,
+  );
+
+  final String id;
+  final DateTime fechaHora;
+  final int saldoResultante;
+}
+
+class ConsumoPagina {
+  const new({required this.items, required this.page, required this.total});
+
+  final List<Consumo> items;
+  final int page;
+  final int total;
+}

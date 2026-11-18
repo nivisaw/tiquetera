@@ -65,6 +65,17 @@ Formato: **Objetivo · Entradas · Tareas · Entregables · Verificación**
 - **Tareas:** historial de consumos por cliente, estados vacíos/errores/carga, accesibilidad (Semantics, contraste, escalado de texto), i18n es-CO con `intl`.
 - **Verificación:** checklist de rules/ux-ui.md.
 
+### S13B Admin: dashboard y reportes
+- **Tareas:** pestaña "Reportes" del admin (ver `docs/API.md#reportes-admin`). Fechas y "hoy" en Bogotá.
+  - **Dashboard:** almuerzos servidos hoy y últimos 7 días (barras por día), clientes con tiquetera vigente, almuerzos prepagados pendientes por servir (suma de saldos vigentes), almuerzos vendidos en el mes (recargas), tiqueteras que vencen en 7 días, rechazos de hoy.
+  - **Sin recarga ≥ N días** (default 30): clientes activos cuya última tiquetera se creó hace ≥ N días; muestra fecha de última recarga y saldo.
+  - **Por vencer:** tiqueteras vigentes con saldo > 0 que vencen en ≤ N días (default 7), para avisar al cliente antes de que pierda almuerzos.
+  - **Saldo bajo:** tiqueteras vigentes con saldo ≤ N (default 3), oportunidad de recarga.
+  - **Consumos por día:** rango `desde/hasta` (máx. 31 días), total por día y por cajero (cuadre de caja).
+  - Cada fila de cliente abre su detalle; botón "Abrir chat" (wa.me) en sin recarga, por vencer y saldo bajo.
+- **Backend:** migración que añade `tiqueteras.almuerzos_vendidos` (lo vendido en esa recarga; hoy `almuerzos_comprados` incluye el saldo arrastrado), con backfill = comprados − saldo de la tiquetera anterior; queries sqlc con `EXPLAIN` revisado e índices si hace falta (nueva migración); listados paginados (size ≤ 50); solo `admin` (tests 403 cajero).
+- **Verificación:** tests de integración por reporte con bordes de fecha en Bogotá (día 29/30, vence hoy/mañana); widget tests de dashboard y listados (cargando/vacío/error).
+
 ## Fase 3 — Calidad, despliegue y release
 
 ### S14 Tests E2E
@@ -80,4 +91,4 @@ Formato: **Objetivo · Entradas · Tareas · Entregables · Verificación**
 - **Verificación:** build AAB y IPA generados; checklist de tiendas.
 
 ## Backlog (no implementar sin aprobación)
-Reportes y exportación CSV · multi-sede · WhatsApp Cloud API · modo offline del cajero · notificación de saldo bajo/vencimiento.
+Modo offline del cajero · notificación de saldo bajo/vencimiento.

@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
+import 'package:tiquetera/core/platform/screen_awake.dart';
 import 'package:tiquetera/core/theme/app_theme.dart';
 import 'package:tiquetera/features/auth/presentation/logout_button.dart';
 import 'package:tiquetera/features/escaner/data/camera_permission.dart';
@@ -30,12 +31,14 @@ class _EscanerPageState extends ConsumerState<EscanerPage>
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    unawaited(ScreenAwake.set(on: true));
     unawaited(_update(_permission.status));
   }
 
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
+    unawaited(ScreenAwake.set(on: false));
     super.dispose();
   }
 

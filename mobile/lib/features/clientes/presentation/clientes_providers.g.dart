@@ -177,6 +177,105 @@ final class ClienteDetalleFamily extends $Family
   String toString() => r'clienteDetalleProvider';
 }
 
+/// Historial de consumos de un cliente, más reciente primero.
+
+@ProviderFor(ConsumosHistorial)
+final consumosHistorialProvider = ConsumosHistorialFamily._();
+
+/// Historial de consumos de un cliente, más reciente primero.
+final class ConsumosHistorialProvider
+    extends $AsyncNotifierProvider<ConsumosHistorial, ConsumosState> {
+  /// Historial de consumos de un cliente, más reciente primero.
+  ConsumosHistorialProvider._({
+    required ConsumosHistorialFamily super.from,
+    required String super.argument,
+  }) : super(
+         retry: noRetry,
+         name: r'consumosHistorialProvider',
+         isAutoDispose: true,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
+
+  @override
+  String debugGetCreateSourceHash() => _$consumosHistorialHash();
+
+  @override
+  String toString() {
+    return r'consumosHistorialProvider'
+        ''
+        '($argument)';
+  }
+
+  @$internal
+  @override
+  ConsumosHistorial create() => ConsumosHistorial();
+
+  @override
+  bool operator ==(Object other) {
+    return other is ConsumosHistorialProvider && other.argument == argument;
+  }
+
+  @override
+  int get hashCode {
+    return argument.hashCode;
+  }
+}
+
+String _$consumosHistorialHash() => r'f3b6b3ed7a661a8d39cb54950f815a75c9b9188b';
+
+/// Historial de consumos de un cliente, más reciente primero.
+
+final class ConsumosHistorialFamily extends $Family
+    with
+        $ClassFamilyOverride<
+          ConsumosHistorial,
+          AsyncValue<ConsumosState>,
+          ConsumosState,
+          FutureOr<ConsumosState>,
+          String
+        > {
+  ConsumosHistorialFamily._()
+    : super(
+        retry: noRetry,
+        name: r'consumosHistorialProvider',
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: true,
+      );
+
+  /// Historial de consumos de un cliente, más reciente primero.
+
+  ConsumosHistorialProvider call(String clienteId) =>
+      ConsumosHistorialProvider._(argument: clienteId, from: this);
+
+  @override
+  String toString() => r'consumosHistorialProvider';
+}
+
+/// Historial de consumos de un cliente, más reciente primero.
+
+abstract class _$ConsumosHistorial extends $AsyncNotifier<ConsumosState> {
+  late final _$args = ref.$arg as String;
+  String get clienteId => _$args;
+
+  FutureOr<ConsumosState> build(String clienteId);
+  @$mustCallSuper
+  @override
+  WhenComplete runBuild() {
+    final ref = this.ref as $Ref<AsyncValue<ConsumosState>, ConsumosState>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<AsyncValue<ConsumosState>, ConsumosState>,
+              AsyncValue<ConsumosState>,
+              Object?,
+              Object?
+            >;
+    return element.handleCreate(ref, () => build(_$args));
+  }
+}
+
 @ProviderFor(qrShareService)
 final qrShareServiceProvider = QrShareServiceProvider._();
 

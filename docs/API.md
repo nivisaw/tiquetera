@@ -59,8 +59,19 @@ Validaciones: username 3..50 (`A-Za-z0-9._-`, único sin distinguir mayúsculas)
 Errores: JSON mal formado, campo desconocido, PATCH vacío o con null 400 `INVALID_REQUEST`; valor inválido 422 `VALIDATION_ERROR`; username repetido 409 `USERNAME_DUPLICADO`; desactivar o degradar al único admin activo 422 `ULTIMO_ADMIN`; id inexistente o mal formado 404 `NOT_FOUND`.
 Desactivar, cambiar de rol o restablecer la contraseña revoca los refresh tokens del usuario. Desactivar o cambiar de rol aplica de inmediato también a los access tokens ya emitidos (ADR-006b); restablecer la contraseña no invalida el access token vigente (máx. 15 min).
 
-## Reportes (admin, fase 2)
-`GET /reportes/consumos?desde=&hasta=&cajero_id=`
+## Reportes (admin)
+Solo rol `admin` (cajero 403). Fechas `YYYY-MM-DD`, "hoy" y rangos en America/Bogota. Listados `{items, page, size, total}` (size ≤ 50).
+
+| Método | Ruta | Respuesta |
+|---|---|---|
+| GET | /reportes/dashboard | `{consumos_hoy, consumos_7d: [{fecha, total}], clientes_vigentes, saldo_pendiente, vendidos_mes, por_vencer_7d, rechazos_hoy}` |
+| GET | /reportes/sin-recarga?dias=30&page=&size= | `items[]`: `{cliente_id, nombre, telefono, ultima_recarga, saldo}`; más antiguos primero. `dias` 1..365 |
+| GET | /reportes/por-vencer?dias=7&page=&size= | `items[]`: `{cliente_id, nombre, telefono, fecha_vencimiento, saldo}`; vence antes primero. `dias` 0..60 |
+| GET | /reportes/saldo-bajo?max=3&page=&size= | `items[]`: `{cliente_id, nombre, telefono, saldo, fecha_vencimiento}`; menor saldo primero. `max` 0..50 |
+| GET | /reportes/consumos?desde=&hasta=&cajero_id= | `{total, dias: [{fecha, total}], cajeros: [{cajero_id, nombre, total}]}`; rango ≤ 31 días |
+
+Definiciones: *vigente* = tiquetera activa con `fecha_vencimiento >= hoy`. *saldo_pendiente* = suma de saldos vigentes. *vendidos_mes* = suma de `almuerzos_vendidos` (solo lo nuevo, sin el saldo arrastrado) de tiqueteras creadas en el mes en curso. *sin-recarga*: clientes activos cuya tiquetera más reciente tiene `created_at` ≤ hoy − `dias`.
+Errores: parámetro inválido o rango > 31 días 422 `VALIDATION_ERROR`.
 
 ## Salud
 `GET /healthz` · `GET /readyz` (sin auth, sin detalles internos)

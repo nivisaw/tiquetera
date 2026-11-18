@@ -198,6 +198,26 @@ class AppLocalizationsEs extends AppLocalizations {
   String get detalleRegenerar => 'Regenerar QR';
 
   @override
+  String get historialTitle => 'Historial de consumos';
+
+  @override
+  String get historialEmpty => 'Aún no hay consumos registrados.';
+
+  @override
+  String get historialError => 'No se pudo cargar el historial.';
+
+  @override
+  String historialSaldo(int saldo) {
+    String _temp0 = intl.Intl.pluralLogic(
+      saldo,
+      locale: localeName,
+      other: 'Quedaron $saldo almuerzos',
+      one: 'Quedó 1 almuerzo',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get recargaTitle => 'Nueva recarga';
 
   @override

@@ -50,4 +50,12 @@ abstract final class ClienteRules {
   static String displayDate(DateTime d) =>
       '${d.day.toString().padLeft(2, '0')}/'
       '${d.month.toString().padLeft(2, '0')}/${d.year}';
+
+  /// Instante UTC → `dd/MM/yyyy HH:mm` en Bogotá.
+  static String displayDateTimeBogota(DateTime instant) {
+    final b = instant.toUtc().add(_bogotaOffset);
+    final hh = b.hour.toString().padLeft(2, '0');
+    final mm = b.minute.toString().padLeft(2, '0');
+    return '${displayDate(b)} $hh:$mm';
+  }
 }

@@ -12,5 +12,12 @@ import UIKit
 
   func didInitializeImplicitFlutterEngine(_ engineBridge: FlutterImplicitEngineBridge) {
     GeneratedPluginRegistrant.register(with: engineBridge.pluginRegistry)
+    guard let registrar = engineBridge.pluginRegistry.registrar(forPlugin: "ScreenAwake") else { return }
+    FlutterMethodChannel(name: "tiquetera/screen", binaryMessenger: registrar.messenger())
+      .setMethodCallHandler { call, result in
+        guard call.method == "keepOn" else { return result(FlutterMethodNotImplemented) }
+        UIApplication.shared.isIdleTimerDisabled = (call.arguments as? Bool) ?? false
+        result(nil)
+      }
   }
 }

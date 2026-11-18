@@ -25,6 +25,34 @@ const _base = 'https://api.test';
 }
 
 void main() {
+  test('TestClientesRepository_ListConsumos_SendsPageAndParses', () async {
+    final s = _setup(
+      (_) => (
+        status: 200,
+        body: {
+          'items': [
+            {
+              'id': 'k1',
+              'fecha_hora': '2026-11-10T17:05:00Z',
+              'saldo_resultante': 19,
+            },
+          ],
+          'page': 2,
+          'size': 50,
+          'total': 51,
+        },
+      ),
+    );
+
+    final page = await s.repo.listConsumos('c1', page: 2);
+
+    final req = s.api.requests.single;
+    expect(req.path, '/clientes/c1/consumos');
+    expect(req.queryParameters, {'page': 2, 'size': 50});
+    expect(page.items.single.saldoResultante, 19);
+    expect(page.total, 51);
+  });
+
   test('TestClientesRepository_Create_SendsBodyAndParses', () async {
     final s = _setup(
       (_) => (
