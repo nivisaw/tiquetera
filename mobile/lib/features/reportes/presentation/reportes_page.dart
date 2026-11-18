@@ -118,7 +118,19 @@ class _StatCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Icon(icon, color: theme.colorScheme.primary),
+                DecoratedBox(
+                  decoration: BoxDecoration(
+                    color: theme.colorScheme.primaryContainer,
+                    borderRadius: BorderRadius.circular(AppRadius.md),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(AppSpacing.sm),
+                    child: Icon(
+                      icon,
+                      color: theme.colorScheme.onPrimaryContainer,
+                    ),
+                  ),
+                ),
                 const SizedBox(height: AppSpacing.sm),
                 Text('$value', style: theme.textTheme.headlineMedium),
                 Text(label, style: theme.textTheme.bodyMedium),

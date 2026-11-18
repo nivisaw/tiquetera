@@ -7,7 +7,7 @@ TESTCONTAINERS := -v /var/run/docker.sock:/var/run/docker.sock --add-host=host.d
 
 export MSYS_NO_PATHCONV := 1
 
-.PHONY: help env up down logs ps clean test lint vuln tidy migrate migrate-down sqlc seed
+.PHONY: help env up down logs ps clean test lint vuln tidy migrate migrate-down sqlc seed seed-demo
 
 help: ## Lista comandos
 	@grep -E '^[a-z-]+:.*##' $(MAKEFILE_LIST) | awk -F':.*## ' '{printf "  %-10s %s\n", $$1, $$2}'
@@ -42,6 +42,9 @@ sqlc: ## Genera código desde db/queries
 
 seed: ## Crea el admin inicial si no existe
 	$(COMPOSE) run --rm --build seed
+
+seed-demo: ## Carga 40 clientes con consumos de prueba (solo local)
+	$(COMPOSE) exec -T db sh -c 'psql -v ON_ERROR_STOP=1 -U "$$POSTGRES_USER" -d "$$POSTGRES_DB"' < infra/scripts/seed_demo.sql
 
 test: ## Tests backend con cobertura (requiere Docker para integración)
 	$(GO_RUN) $(TESTCONTAINERS) $(GO_IMAGE) go test -cover ./...
